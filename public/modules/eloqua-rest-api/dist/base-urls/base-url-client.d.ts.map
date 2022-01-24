@@ -1,0 +1,1 @@
+{"version":3,"file":"base-url-client.d.ts","sourceRoot":"","sources":["../../lib/base-urls/base-url-client.ts"],"names":[],"mappings":"AACA,OAAO,EAAC,kBAAkB,EAAC,MAAM,uBAAuB,CAAC;AACzD,OAAO,EAAC,QAAQ,EAAC,MAAM,uBAAuB,CAAC;AAI/C,qBAAa,aAAa;WACV,GAAG,CACf,WAAW,EAAE,kBAAkB,GAC9B,OAAO,CAAC,QAAQ,CAAC;IAiBpB,OAAO;CACR"}
