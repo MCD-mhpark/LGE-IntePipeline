@@ -413,6 +413,3 @@ exports.customField_Valid = function(str){
     
 }
 
-
-
-
