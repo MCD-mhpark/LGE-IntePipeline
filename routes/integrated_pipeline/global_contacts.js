@@ -1222,10 +1222,16 @@ async function setBant_Update(bant_name, contact_list) {
 pipe_global_bant_send = async function (business_name, state_date, end_date , req, res) {
 	console.log("pipe_global_bant_send function BS NAME : " + business_name);
 	
-	let status = "fullstg"
+	// var parentId = 46;  // B2B GERP GLOBAL CustomObject ID
+
+	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
+
+	let status = "dev"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
+
+	
 	
 	switch(status){
 		//LG전자 파이프라인 개발 URL
@@ -1283,8 +1289,8 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 		let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
 		
 		// MQL Data 전송 전 MQL Data List 를 CustomObject 에 적재 update_mql_data은 customobject 적재값임
-		// pipe test 를 위해 주석 처리
-		let update_mql_data = await mqldata_to_eloqua_send( 146 , mql_customobject_list);
+		// pipe 테스트 를 위해 주석 처리
+		let update_mql_data = await mqldata_to_eloqua_send( parentId , mql_customobject_list);
 		
 		// CustomObject 에 적재된 MQL DATA를 CUSTOMBOEJCT_ID 고유값을 추가
 		let update_data = await mqldata_push_customobjectid(request_data, update_mql_data);
@@ -1371,12 +1377,12 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 					await mqldata_to_eloqua_send( 105 ,temp_nosub_customobject);
 
 					// Pipe Test 를 위해 주석처리
-					var bant_result_list = await setBant_Update(business_name, bant_update_list);
+					// var bant_result_list = await setBant_Update(business_name, bant_update_list);
 					req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
 					req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
 				}
 
-				res.json(body);
+				// res.json(body);
 			}
 			
 		});

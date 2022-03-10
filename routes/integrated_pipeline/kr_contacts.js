@@ -13,9 +13,9 @@ router.get('/inte_pipeline_kr', async function (req, res, next) {
 
 pipe_kr_bant_send = async function (req, res){
 	console.log("Pipeline pipe_kr_bant_send");
-	// var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
+	var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
 
-	var parentId = 149;  // 한국영업본부 온라인 견적문의 테스트 커스텀 오브젝트 ID
+	// var parentId = 149;  // 한국영업본부 온라인 견적문의 테스트 커스텀 오브젝트 ID
 
 	var COD_list = await GetKR_CustomDataSearch(parentId ,"get");
 	
@@ -24,7 +24,7 @@ pipe_kr_bant_send = async function (req, res){
 	// var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
 	var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
 
-	let status = "fullstg"
+	let status = "dev"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -121,7 +121,8 @@ pipe_kr_bant_send = async function (req, res){
 	    		req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" ,  "PIPELINE_KR" , body );
 	            if(B2B_GERP_KR_DATA.length > 0 ) {
 	                // console.log(B2B_GERP_KR_DATA);
-	                let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+	                //Pipe Line 테스트를 위해 주석 처리
+					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
 					// console.log(trans_up_list[0].fieldValues);
 					await sendTransfer_Update(parentId , trans_up_list);
 					
