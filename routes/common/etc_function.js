@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-router.get('/fields', function (req, res, next) {
+router.get('/contacts_fields', function (req, res, next) {
 	var queryString = {
 		depth: "complete",
 		// search : "?isStandard=false"
@@ -15,6 +15,24 @@ router.get('/fields', function (req, res, next) {
 		console.error(err.message);
 	});
 });
+
+
+router.get('/customobject_fields', function (req, res, next) {
+	var queryString = {
+		depth: "complete",
+		// search : "?isStandard=false"
+	}
+	let customObject_id = req.query.cid;
+	console.log(1234);
+	// console.log(b2bgerp_eloqua.assets.customObjects);
+	b2bkr_eloqua.assets.customObjects.getOne(customObject_id , queryString).then((result) => {
+		// console.log(result.data);
+		res.json(result.data);
+	}).catch((err) => {
+		console.error(err.message);
+	});
+});
+
 
 router.get('/activities_log/:id', function (req, res, next) {
 	var queryString = {

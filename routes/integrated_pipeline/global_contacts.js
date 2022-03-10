@@ -2,125 +2,40 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var request_promise = require('request-promise');
-var httpRequest = require('../../common/httpRequest');
-var utils = require('../../common/utils');
+var httpRequest = require('../common/httpRequest');
+var utils = require('../common/utils');
 var moment = require('moment');
 var global_seq_cnt = 0;
 var fs = require("mz/fs");
+const { option } = require('yargs');
+
+const { resolveMx } = require('dns');
 
 router.get('/inte_pipeline_global', async function (req, res, next) {
-	// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
+	
+	let sdate = req.query.sdate ; 
+	let edate = req.query.edate ; 
 	let bant_list = ["AS" , "CM" , "ID" , "IT" , "Solution"];
 	bant_list.forEach( async BusinessName =>{
-		await pipe_global_bant_send(BusinessName);
+		await pipe_global_bant_send(BusinessName , sdate , edate , req, res);
 	})
 });
 
-
-router.get('/inte_pipeline_kr', async function (req, res, next) {
-	await pipe_kr_bant_send();
-});
 
 router.post('/inte_pipeline_lead_update', async function (req, res, next) {
 	await pipe_global_lead_update(req, res, next);
 });
 
-//CustomObject 기간 조회 Eloqua API Version 1.0
-async function GetKR_CustomDataSearch(_parentId , type) {
-	var return_data = {};
-	var parentId = _parentId;
-
-	var queryString = "";
-	
-	if(type == 'get') queryString += "?search=B2B_GERP_KR_____1=''"
-	if(type == 'init')  queryString += "?search=B2B_GERP_KR_____1='Y'"
-
-	// Get 요청하기 
-	const options = {
-		uri: "https://secure.p03.eloqua.com/api/REST/1.0/data/customObject/" + parentId + queryString
-		, headers: {
-			'Authorization': 'Basic ' + 'TEdFbGVjdHJvbmljc1xMZ19hcGkuQjJiX2tyOlFXZXIxMjM0IUA='
-		}
-	};
-
-	await request_promise.get(options, function (error, response, body) {
-		return_data = JSON.parse(body);
-	});
-
-	return return_data;
-}
+router.post('/tester', async function (req, res, next) {
+	console.log(req);
+});
 
 
-var kr_seq_cnt = 0;
-//Eloqua Data B2B GERP Global Mapping 데이터 생성
-function Convert_B2BGERP_KR_DATA(_cod_data) {
-	var cod_elements = _cod_data.elements;
-	var result_data = [];
-
-	for (var i = 0; i < cod_elements.length; i++) {
-		try {
-			var result_item = new B2B_GERP_KR_ENTITY();
-
-			//LEAD_NAME
-			//"[MQL]"+"_" + GetCustomFiledValue(FieldValues_data, 100202) + "_" + moment().format('YYYYMMDD');
-			moment.locale('kr');
-			// result_item.INTERFACE_ID = moment().format('YYYYMMDD') + "8" + lpad(seq_cnt, 5, "0");
-			result_item.INTERFACE_ID = moment().format('YYYYMMDD') + "8";
-			result_item.CUSTOMOBJECT_ID = cod_elements[i].id ; 
-			result_item.CONTACT_ID = cod_elements[i].contactId ;
-
-			result_item.ESTIMATION_ID = GetCustomObjectValue(267, cod_elements[i], "N"); //견적번호 X
-			result_item.ESTIMATION_SEQ_NO = GetCustomObjectValue(268, cod_elements[i], "N"); //견적상세번호 X
-			result_item.CUSTOMER_NAME = GetCustomObjectValue(269, cod_elements[i], "N"); //고객명 X
-			result_item.BIZ_REGISTER_NO = GetCustomObjectValue(270, cod_elements[i], "N"); //사업자등록번호 X
-			result_item.CORP_REGISTER_NO = GetCustomObjectValue(271, cod_elements[i], "N"); //법인등록번호 X
-			result_item.POSTAL_CODE = GetCustomObjectValue(272, cod_elements[i], "N"); //우편번호
-			result_item.BASE_ADDR = GetCustomObjectValue(273, cod_elements[i], "N"); //기본주소
-			result_item.DETAIL_ADDR = GetCustomObjectValue(274, cod_elements[i], "N"); //상세주소
-			result_item.PHONE_NO = GetCustomObjectValue(275, cod_elements[i], "N"); //전화번호
-			result_item.EMAIL_ADDR = GetCustomObjectValue(276, cod_elements[i], "N"); //전자우편주소
-			// result_item.CONTACT_NAME = GetCustomObjectValue(277, cod_elements[i], "N"); //담당자명
-
-			result_item.CONTACT_NAME = GetCustomObjectValue(396, cod_elements[i], "N") + " " + GetCustomObjectValue(395, cod_elements[i], "N"); //담당자명
-			result_item.CONTACT_PHONE_NO = GetCustomObjectValue(278, cod_elements[i], "N"); //담당자 전화번호
-			result_item.CONTACT_CELLULAR_NO = GetCustomObjectValue(279, cod_elements[i], "N"); //담당자 이동전화번호
-			result_item.CONTACT_EMAIL_ADDR = GetCustomObjectValue(280, cod_elements[i], "N"); //담당자 전자우편주소
-			result_item.MODEL_CODE = GetCustomObjectValue(281, cod_elements[i], "N"); //모델코드
-			result_item.CUST_REMARK = GetCustomObjectValue(282, cod_elements[i], "N"); //고객요청사항
-			result_item.PRODUCT_DESC = GetCustomObjectValue(283, cod_elements[i], "N"); //제품설명
-
-			
-			result_item.ATTRIBUTE_1 = GetCustomObjectValue(296, cod_elements[i], "N"); //제품설치지역 도시 
-			result_item.ATTRIBUTE_2 = GetCustomObjectValue(297, cod_elements[i], "N"); //제품설치지역 시군구
-			result_item.ATTRIBUTE_3 = GetCustomObjectValue(285, cod_elements[i], "N"); //B2B 전문점 코드
-			result_item.ATTRIBUTE_4 = GetCustomObjectValue(286, cod_elements[i], "N"); //카테고리명
-			result_item.ATTRIBUTE_5 = GetCustomObjectValue(287, cod_elements[i], "N"); //상세 카테고리 명
-			result_item.ATTRIBUTE_6 = GetCustomObjectValue(288, cod_elements[i], "N"); //타입명
-			result_item.ATTRIBUTE_7 = GetCustomObjectValue(293, cod_elements[i], "N"); //통합회원 유니크 아이디
-			result_item.ATTRIBUTE_8 = GetCustomObjectValue(294, cod_elements[i], "N"); //업종
-			result_item.ATTRIBUTE_9 = GetCustomObjectValue(295, cod_elements[i], "N"); //상세업종
-
-			result_item.ATTRIBUTE_10 = "";
-			result_item.ATTRIBUTE_11 = "";
-			result_item.ATTRIBUTE_12 = "";
-
-			result_item.LEAD_SOURCE_NAME = GetCustomObjectValue(318, cod_elements[i], "N"); //Platform & Activity
-			result_item.LEAD_NAME = GetCustomObjectValue(317, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N") ; 
-			//Leadname 조합 B2B사이트명_YYYYMMDD_r고객사명
-
-			result_item.REGISTER_DATE = moment().format('YYYY-MM-DD hh:mm:ss'); //등록일자
-
-			result_data.push(result_item);
-
-			kr_seq_cnt++;
-
-		} catch (e) {
-			console.log(e);
-		}
-	}
-	return result_data;
-}
-
+router.get('/get_access_token', async function (req, res, next) {
+	let result = await utils.getPipe_AccessToken("dev" , req , res);
+	console.log(result);
+	res.json(result);
+});
 
 async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 
@@ -149,105 +64,6 @@ async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 	}
 
 	return return_list;
-}
-
-async function sendTransfer_Update( parentId , KR_DATA_LIST){
-
-	for(let item of KR_DATA_LIST){
-		await b2bkr_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
-			// console.log(result);
-			return_data = result;
-		}).catch((err) => {
-			// console.error(err);
-			console.error(err.message);
-			return_data = err;
-		});
-	}
-}
-
-pipe_kr_bant_send = async function (){
-	console.log("Pipeline pipe_kr_bant_send");
-	var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
-
-	var COD_list = await GetKR_CustomDataSearch(parentId ,"get");
-	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
-
-
-	//LG전자 KR 운영 Endpoint
-	let prd_url = ""
-	
-	// console.log(B2B_GERP_KR_DATA);
-	if (B2B_GERP_KR_DATA != null && B2B_GERP_KR_DATA.length > 0) {
-	    var headers = {
-	        'Content-Type': "application/json",
-	        'x-Gateway-APIKey' : "키 바꿔야함"
-	    }
-
-	    options = {
-	        url : prd_url,
-	        method: "POST",
-	        headers:headers,
-	        body : { ContentList: B2B_GERP_KR_DATA } ,
-	        json : true
-	    };
-
-		
-
-
-
-        req_res_logs("reqEloqua_" + moment().tz('Asia/Seoul').format("HH시mm분") , "KR" , "PIPELINE_KR" , COD_list );
-        req_res_logs("reqConvert_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR", B2B_GERP_KR_DATA );
-        // req_res_logs("reqTotal" , business_name , total_logs );
-	
-
-        //   var bant_result_list = await setBant_Update( business_name , bant_update_list );
-        //   req_res_logs("bantResult" , business_name , bant_result_list );
-        //   res.json(bant_result_list);
-
-		// pipe test 를 위해 주석 처리
-		return;
-        await request_promise.post(options, async function (error, response, body) {
-
-	        // console.log(11);
-	        // console.log(response);
-			
-	        if(error){
-	            console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
-	            // console.log(error);
-				let errorData = {
-					errorCode : response.statusCode,
-					errorMsg : error.message 
-				}
-				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , errorData );	
-	        }else if(!error && response.statusCode != 200 ){
-			
-				let errorData = {
-					errorCode : response.statusCode,
-					errorMsg : "Error Object Not Found & Response Code Not 200" ,
-					errorDetailMsg : response.body
-				}
-				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , errorData );
-				req_res_logs("requestObject_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , response );
-			}else if (!error && response.statusCode == 200) {
-	    		req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" ,  "PIPELINE_KR" , body.resultData );
-	            if(B2B_GERP_KR_DATA.length > 0 ) {
-	                // console.log(B2B_GERP_KR_DATA);
-	                let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
-					// console.log(trans_up_list[0].fieldValues);
-					await sendTransfer_Update(parentId , trans_up_list);
-	            }   
-	        }
-	    });
-
-	}
-	else {
-		let noneData = {
-			errorInfo : null ,
-			errorMessage : "보낼 데이터가 없습니다."
-		}
-		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "PIPELINE_KR" , noneData );
-		
-	}
 }
 
 
@@ -308,7 +124,7 @@ async function get_b2bgerp_global_bant_data(_business_name, start_date, end_date
 
 	await b2bgerp_eloqua.data.contacts.get(queryString).then((result) => {
 		console.log("business_name : " + business_name + " result data 건수 : " + result.data.total);
-		console.log(result.data);
+		// console.log(result.data);
 		if (result.data.total && result.data.total > 0) {
 			contacts_data = result.data;
 		}
@@ -321,45 +137,46 @@ async function get_b2bgerp_global_bant_data(_business_name, start_date, end_date
 
 
 function B2B_GERP_GLOBAL_ENTITY() {
-	this.INTERFACE_ID = "ELOQUA_0003", //  (필수값) 
-    this.LEAD_NAME = "";        // (필수값) 리드네임 [MQL]Subsidiary_BU_Platform&Activity_Register Date+Hour 값을 조합
-    this.SITE_NAME = "";		// (필수값) 사이트네임
-	this.LEAD_SOURCE_NAME = "";	//리드소스 네임 Platform&Activity 필드 매핑
-	this.LEAD_SOURCE_TYPE = "11";// (필수값) default 11 ? Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
-	this.ENTRY_TYPE = "L"       //default L
-	this.ACCOUNT = "";          // (필수값) 회사
-	this.CONTACT_POINT = "";    // (필수값) Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
-	this.CORPORATION = "";      //법인정보
-	this.OWNER = "";            //데이터 없음
-	this.ADDRESS = "";          //현업확인 Address1 + Address2 + Address3
-	this.DESCRIPTION = "";      //설명 Comments, message, inquiry-to-buy-message 필드 중 하나
-	this.ATTRIBUTE_1 = "";      //엘로코아 CONTACT ID
-	this.ATTRIBUTE_2 = "";      //PRODUCT LV1의 BU 별 Budget
-	this.ATTRIBUTE_3 = "";      //픽리스트 eloqua 확인
-	this.ATTRIBUTE_4 = "";      //이메일
-	this.ATTRIBUTE_5 = "";      //전화번호
-	this.ATTRIBUTE_6 = "";      //확인필요
-	this.ATTRIBUTE_7 = "";      //지역 - 국가 eloqua filed 정보
-	this.ATTRIBUTE_8 = "";      //넷중 하나 또는 4개의 필드 정보 합 ( 확인 필요 )
-	this.ATTRIBUTE_9 = "";      //Job Function
-	this.ATTRIBUTE_10 = "";     //데이터 없음
-	this.ATTRIBUTE_11 = "";     //사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
-	this.ATTRIBUTE_12 = "";     //Seniority
-	this.ATTRIBUTE_13 = "";     //PRODUCT LV1의 BU 별 Needs
-	this.ATTRIBUTE_14 = "";     //PRODUCT LV1의 BU 별 Timeline
-	this.ATTRIBUTE_15 = "";     //Marketing Event
-	this.ATTRIBUTE_16 = "";     //Privacy Policy YN
-	this.ATTRIBUTE_17 = "";     //Privacy Policy Date
-	this.ATTRIBUTE_18 = "";     //TransferOutside EEA YN
-	this.ATTRIBUTE_19 = "";     //TransferOutside EEA Date
-	this.ATTRIBUTE_20 = "";     //ELOQUA 내 Product 1
-	this.ATTRIBUTE_21 = "";     //ELOQUA 내 Product 2 없을경우 NULL
-	this.ATTRIBUTE_22 = "";     //ELOQUA 내 Product 3 없을경우 NULL
-	this.ATTRIBUTE_23 = "";     //Vertical Type B2B GERP Global Code mapping
-	this.REGISTER_DATE = "";    // (필수값) 어떤 날짜 정보인지 확인 필요
-	this.TRANSFER_DATE = "";    // (필수값) 어떤 날짜 정보인지 확인 필요
-	this.TRANSFER_FLAG = "";		// (필수값) TRANSFER_FLAG N , Y 값의 용도 확인 필요 
-	this.LAST_UPDATE_DATE = "";
+	this.interfaceId = "ELOQUA_0003", //  (필수값) 
+    this.leadName	= "";        // (필수값) 리드네임 [MQL]Subsidiary_BU_Platform&Activity_Register Date+Hour 값을 조합
+    this.siteName	= "";		// (필수값) 사이트네임
+	this.leadSourceName	= "";	//리드소스 네임 Platform&Activity 필드 매핑
+	this.leadSourceType	= "11";// (필수값) default 11 ? Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
+	this.entryType	= "L"       //default L
+	this.account	= "";          // (필수값) 회사
+	this.contactPoint	= "";    // (필수값) Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
+	this.corporation	= "";      //법인정보
+	// this.OWNER = "";            //데이터 없음 -> pipeline 에서 사용 하지않음
+	this.address	= "";          //현업확인 Address1 + Address2 + Address3
+	this.description 	= "";      //설명 Comments, message, inquiry-to-buy-message 필드 중 하나
+	this.contactId	= "";      		//엘로코아 CONTACT ID
+	this.budget	= "";      			//PRODUCT LV1의 BU 별 Budget
+	this.verticalType2	= "";      //픽리스트 eloqua 확인
+	this.email	= "";      			//이메일
+	this.phone	= "";      			//전화번호
+	// this.ATTRIBUTE_6 = "";       //확인필요 -> pipeline 에서 사용 하지않음
+	this.region	= "";      			//지역 - 국가 eloqua filed 정보
+	// this.ATTRIBUTE_8	= "";      //넷중 하나 또는 4개의 필드 정보 합 ( 확인 필요 ) -> pipeline 에서 사용 하지않음
+	this.jobFunction	= "";      //Job Function
+	this.businessUnit	= "";     // 사업부별 BU
+	this.division	= "";     //사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
+	this.seniority	= "";     //Seniority
+	this.needs	= "";     //PRODUCT LV1의 BU 별 Needs
+	this.timeLine = "";     //PRODUCT LV1의 BU 별 Timeline
+	this.marketingEvent	= "";     //Marketing Event
+	this.privacyPolicyYn = "";     //Privacy Policy YN
+	this.privacyPolicyDate	= "";     //Privacy Policy Date
+	this.transferOutsideEeaYn	= "";     //TransferOutside EEA YN
+	this.transferOutsideEeaDate	= "";     //TransferOutside EEA Date
+	this.eloquaProduct1	= "";     //ELOQUA 내 Product 1
+	this.eloquaProduct2	= "";     //ELOQUA 내 Product 2 없을경우 NULL
+	this.eloquaProduct3	= "";     //ELOQUA 내 Product 3 없을경우 NULL
+	this.verticalType	= "";     //Vertical Type B2B GERP Global Code mapping
+	this.registerDate	= "";    // (필수값) 어떤 날짜 정보인지 확인 필요
+	this.transferDate	= "";    // (필수값) 어떤 날짜 정보인지 확인 필요
+	this.transferFlag	= "";		// (필수값) TRANSFER_FLAG N , Y 값의 용도 확인 필요 
+	this.lastUpdateDate	= "";
+	this.customObjectId	= "";		// Eloqua 내 CustomObject 에 전송 MQL 을 저장한 후 leadnumber update 를 하기 위한 customobject id 값
 	//Building Type을 Vertical Type으로 변경하고 전사 Vertical 기준에 맞추어 매핑 필요 - LG.com내에도 항목 수정 필요하니 요청 필요함 호텔정보 
 }
 
@@ -372,9 +189,11 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 		try {
 
+	
 			var result_item = new B2B_GERP_GLOBAL_ENTITY();
 			var FieldValues_data = contacts_data.elements[i].fieldValues;
 
+	
 			//result_item.INTERFACE_ID = "ELOQUA_0003" // this.INTERFACE_ID = "ELOQUA_0003"
 
 			var business_interface_num = 0;
@@ -390,7 +209,7 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 				default: business_interface_num = 0; break;
 			}
 
-			result_item.INTERFACE_ID = moment().format('YYYYMMDD') + business_interface_num + lpad(global_seq_cnt, 5, "0");
+			result_item.interfaceId	= moment().format('YYYYMMDD') + business_interface_num + lpad(global_seq_cnt, 5, "0");
 			//리드네임 [MQL]Subsidiary_BU_Platform&Activity_Register Date+Hour 값을 조합
 			//리드네임 {{Business Unit}}_{{Subsidiary}}_{{Platform}}_{{Activity}}_{{Date}}
 			//리드네임 {{Business Unit}}_{{Subsidiary}}_{{Platform&Activity}}_{{Date}}
@@ -401,27 +220,28 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 			
 
-			result_item.LEAD_NAME =
+			result_item.leadName =
 				//GetCustomFiledValue(FieldValues_data, 100229) + "_" +
 				"[MQL]" + GetCustomFiledValue(FieldValues_data, 100196) + "_" +
 				business_department + "_" +
 				GetCustomFiledValue(FieldValues_data, 100202) + "_" +
 				moment().format('YYYYMMDD');
 
-			result_item.SITE_NAME = GetCustomFiledValue(FieldValues_data, 100187) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100187);        //100187	Territory //SITE_NAME ( 현장명 매핑필드 확인 ) //2021-02-02 기준 데이터 없음
-			result_item.LEAD_SOURCE_TYPE = "11";                                          //default 11 (협의됨) //Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
+			result_item.siteName = GetCustomFiledValue(FieldValues_data, 100187) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100187);        //100187	Territory //SITE_NAME ( 현장명 매핑필드 확인 ) //2021-02-02 기준 데이터 없음
+			result_item.leadSourceName = GetCustomFiledValue(FieldValues_data, 100202) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100202); //리드소스 네임 Platform&Activity 필드 매핑 // 폼에 히든값으로 존재
+			result_item.leadSourceType = "11";                                          //default 11 (협의됨) //Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
 
-			result_item.LEAD_SOURCE_NAME = GetCustomFiledValue(FieldValues_data, 100202) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100202); //리드소스 네임 Platform&Activity 필드 매핑 // 폼에 히든값으로 존재
+			
 
-			result_item.ENTRY_TYPE = "L"                                                  //default L
-			result_item.ACCOUNT = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
-			result_item.CONTACT_POINT =
+			result_item.entryType = "L"                                                  //default L
+			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
+			result_item.contactPoint =
 				GetCustomFiledValue(FieldValues_data, 100172) + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
 				GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
 				GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
-			result_item.CORPORATION = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
-			result_item.OWNER = "";                                                       //(확인필요);
+			result_item.corporation = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
+			// result_item.OWNER = "";                                                       //(확인필요);
 
 
 			let address = "";
@@ -432,64 +252,59 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 
 
-			result_item.ADDRESS = address;
+			result_item.address = address;
 			//result_item.DESCRIPTION = GetDataValue(contacts_data.elements[i].description);//설명 Comments, message, inquiry-to-buy-message 필드 중 하나 (확인필요) //DESCRIPTION
 			let description = GetCustomFiledValue(FieldValues_data, 100209);
-			result_item.DESCRIPTION = description.length >= 1500 ? description.substring(0, 1675) : description;      //설명 inquiry-to-buy-message 필드
+			result_item.description = description.length >= 1500 ? description.substring(0, 1675) : description;      //설명 inquiry-to-buy-message 필드
 
-			result_item.ATTRIBUTE_1 = GetDataValue(contacts_data.elements[i].id);         //Eloqua Contact ID
-			result_item.ATTRIBUTE_2 = GetBusiness_Department_data(FieldValues_data, business_department, "Budget"); //PRODUCT LV1의 BU 별 
-			result_item.ATTRIBUTE_3 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_2"); //Vertical Level 2
-			result_item.ATTRIBUTE_4 = GetDataValue(contacts_data.elements[i].emailAddress);   //이메일
-			result_item.ATTRIBUTE_5 = GetDataValue(contacts_data.elements[i].mobilePhone);    //전화번호 (businessPhone 확인필요)
-			result_item.ATTRIBUTE_6 = "";                                                     //(확인필요)
-			result_item.ATTRIBUTE_7 = GetCustomFiledValue(FieldValues_data, 100069);          //지역 - 국가 eloqua filed 정보
-			result_item.ATTRIBUTE_8 = "";
-			result_item.ATTRIBUTE_9 = GetBusiness_Department_data(FieldValues_data, business_department, "Job Function"); //(Job Function 사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_10 = business_department; //(Business Unit 가장 최근 기준 BU값)
+			result_item.contactId = GetDataValue(contacts_data.elements[i].id);         //Eloqua Contact ID
+			result_item.budget = GetBusiness_Department_data(FieldValues_data, business_department, "Budget"); //PRODUCT LV1의 BU 별 
+			result_item.verticalType2 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_2"); //Vertical Level 2
+			result_item.email = GetDataValue(contacts_data.elements[i].emailAddress);   //이메일
+			result_item.phone = GetDataValue(contacts_data.elements[i].mobilePhone);    //전화번호 (businessPhone 확인필요)
+			// result_item.ATTRIBUTE_6 = "";                                                     //(확인필요)
+			result_item.region = GetCustomFiledValue(FieldValues_data, 100069);          //지역 - 국가 eloqua filed 정보
+			// result_item.ATTRIBUTE_8 = "";
+			result_item.jobFunction	= GetBusiness_Department_data(FieldValues_data, business_department, "Job Function"); //(Job Function 사업부별 컬럼 확인 필요)
+			result_item.businessUnit = business_department; //(Business Unit 가장 최근 기준 BU값)
 			//result_item.ATTRIBUTE_10 = GetBusiness_Department_data(FieldValues_data, business_department, "Business Unit"); //(Business Unit 사업부별 컬럼 확인 필요)
 
-			result_item.ATTRIBUTE_11 = "";                                                    //division (확인필요) 사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
-			result_item.ATTRIBUTE_12 = GetBusiness_Department_data(FieldValues_data, business_department, "Seniority"); //Seniority
-			result_item.ATTRIBUTE_13 = GetBusiness_Department_data(FieldValues_data, business_department, "Needs");     //PRODUCT LV1의 BU 별 Needs //(Nees 사업부별 컬럼 확인 필요)  // Inquiry Type* Needs
-			result_item.ATTRIBUTE_14 = GetBusiness_Department_data(FieldValues_data, business_department, "TimeLine");  //PRODUCT LV1의 BU 별 Timeline //(Nees 사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_15 = GetCustomFiledValue(FieldValues_data, 100203);                                   //Marketing Event //100203	Marketing Event // 폼 히든값
-			result_item.ATTRIBUTE_16 = GetCustomFiledValue(FieldValues_data, 100213) == "Yes" ? "Y" : "N";              //Privacy Policy YN //100213	Privacy Policy_Agreed // privcy Policy*
+			result_item.division = "";                                                    //division (확인필요) 사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
+			result_item.seniority = GetBusiness_Department_data(FieldValues_data, business_department, "Seniority"); //Seniority
+			result_item.needs = GetBusiness_Department_data(FieldValues_data, business_department, "Needs");     //PRODUCT LV1의 BU 별 Needs //(Nees 사업부별 컬럼 확인 필요)  // Inquiry Type* Needs
+			result_item.timeLine = GetBusiness_Department_data(FieldValues_data, business_department, "TimeLine");  //PRODUCT LV1의 BU 별 Timeline //(Nees 사업부별 컬럼 확인 필요)
+			result_item.marketingEvent = GetCustomFiledValue(FieldValues_data, 100203);                                   //Marketing Event //100203	Marketing Event // 폼 히든값
+			result_item.privacyPolicyYn = GetCustomFiledValue(FieldValues_data, 100213) == "Yes" ? "Y" : "N";              //Privacy Policy YN //100213	Privacy Policy_Agreed // privcy Policy*
 
 			var Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomFiledValue(FieldValues_data, 100199));
-			result_item.ATTRIBUTE_17 = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //Privacy Policy Date : 100199	Privacy Policy_AgreedDate
+			result_item.privacyPolicyDate = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //Privacy Policy Date : 100199	Privacy Policy_AgreedDate
 
-			result_item.ATTRIBUTE_18 = GetCustomFiledValue(FieldValues_data, 100210) == "Yes" ? "Y" : "N";     //TransferOutside EEA YN : 100210	TransferOutsideCountry*
+			result_item.transferOutsideEeaYn = GetCustomFiledValue(FieldValues_data, 100210) == "Yes" ? "Y" : "N";     //TransferOutside EEA YN : 100210	TransferOutsideCountry*
 
 			var TransferOutside_EEA_Date = utils.timeConverter("GET_DATE", GetCustomFiledValue(FieldValues_data, 100208));
-			result_item.ATTRIBUTE_19 = TransferOutside_EEA_Date == null ? "" : TransferOutside_EEA_Date; //TransferOutside EEA Date : 100208	TransferOutsideCountry_AgreedDate
+			result_item.transferOutsideEeaDate = TransferOutside_EEA_Date == null ? "" : TransferOutside_EEA_Date; //TransferOutside EEA Date : 100208	TransferOutsideCountry_AgreedDate
 
-			result_item.ATTRIBUTE_20 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_21 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_22 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Model");        //ELOQUA 내 Product 3 없을경우 NULL // (사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct1 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct2 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct3 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Model");        //ELOQUA 내 Product 3 없을경우 NULL // (사업부별 컬럼 확인 필요)
 
-			result_item.ATTRIBUTE_23 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_1");    //Vertical Level_1
+			result_item.verticalType = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_1");    //Vertical Level_1
 
-			result_item.REGISTER_DATE = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요 //utils.timeConverter("GET_DATE", contacts_data.elements[i].createdAt);
-			result_item.TRANSFER_DATE = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요
-			result_item.TRANSFER_FLAG = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
-			result_item.LAST_UPDATE_DATE = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
+			result_item.registerDate = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요 //utils.timeConverter("GET_DATE", contacts_data.elements[i].createdAt);
+			result_item.transferDate = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요
+			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
+			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
 
+			console.log(result_item.corporation);
 
+			let notBant_email_list = [];
+			// Pipe Line 테스트를 위해 임시 주석
+			// notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
+			// let notBant_email_list = notBant_emailType_List.filter(function (sentence) {
+			// 	return result_item.ATTRIBUTE_4.indexOf(sentence) > -1 ? result_item.ATTRIBUTE_4 : null;
+			// });
 
-			let notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
-			// let notBant_emailType_List = ["@goldenplanet.co.kr"];
-			let notBant_email_list = notBant_emailType_List.filter(function (sentence) {
-				return result_item.ATTRIBUTE_4.indexOf(sentence) > -1 ? result_item.ATTRIBUTE_4 : null;
-			});
-
-			// for(let k = 0 ; notBant_emailType_List.length > k ; k++){
-			// 	let notBant_item = notBant_emailType_List[k];
-			// 	notBant_item
-			// }
-			// console.log(notBant_email_list.length);
-
-			if (result_item.CORPORATION != "" && result_item.CORPORATION != "LGE" && notBant_email_list.length < 1)
+			if (result_item.corporation != "" && result_item.corporation != "LGE" && notBant_email_list.length < 1)
 				result_data.push(result_item);
 		}
 		catch (e) {
@@ -507,204 +322,417 @@ function CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 		let mql_data = {};
 		mql_data.fieldValues = [];
 
-		mql_data.name = item.ATTRIBUTE_4;
-		mql_data.contactId = item.ATTRIBUTE_1;
+		mql_data.name = item.email;
+		mql_data.contactId = item.contactId;
 		mql_data.isMapped = "Yes";
 		mql_data.type = "CustomObjectData";
 
 		mql_data.fieldValues.push({
 			"id": "484",
-			"value": item.INTERFACE_ID
+			"value": item.interfaceId
 		})
 
 		mql_data.fieldValues.push({
 			"id": "485",
-			"value": item.LEAD_NAME
+			"value": item.leadName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "486",
-			"value": item.SITE_NAME
+			"value": item.siteName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "487",
-			"value": item.LEAD_SOURCE_NAME
+			"value": item.leadSourceName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "488",
-			"value": item.LEAD_SOURCE_TYPE
+			"value": item.leadSourceType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "489",
-			"value": item.ENTRY_TYPE
+			"value": item.entryType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "490",
-			"value": item.ACCOUNT
+			"value": item.account
 		})
 
 		mql_data.fieldValues.push({
 			"id": "491",
-			"value": item.CONTACT_POINT
+			"value": item.contactPoint
 		})
 
 		mql_data.fieldValues.push({
 			"id": "492",
-			"value": item.CORPORATION
+			"value": item.corporation
 		})
 
-		mql_data.fieldValues.push({
-			"id": "493",
-			"value": item.OWNER
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "493",
+		// 	"value": item.OWNER
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "494",
-			"value": item.ADDRESS
+			"value": item.address
 		})
 
 		mql_data.fieldValues.push({
 			"id": "495",
-			"value": item.DESCRIPTION
+			"value": item.description
 		})
 
 		mql_data.fieldValues.push({
 			"id": "496",
-			"value": item.ATTRIBUTE_1
+			"value": item.contactId
 		})
 
 		mql_data.fieldValues.push({
 			"id": "497",
-			"value": item.ATTRIBUTE_2
+			"value": item.budget
 		})
 
 		mql_data.fieldValues.push({
 			"id": "498",
-			"value": item.ATTRIBUTE_3
+			"value": item.verticalType2
 		})
 
 		mql_data.fieldValues.push({
 			"id": "499",
-			"value": item.ATTRIBUTE_4
+			"value": item.email
 		})
 
 		mql_data.fieldValues.push({
 			"id": "500",
-			"value": item.ATTRIBUTE_5
+			"value": item.phone
 		})
 
-		mql_data.fieldValues.push({
-			"id": "501",
-			"value": item.ATTRIBUTE_6
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "501",
+		// 	"value": item.ATTRIBUTE_6
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "502",
-			"value": item.ATTRIBUTE_7
+			"value": item.region
 		})
 
-		mql_data.fieldValues.push({
-			"id": "503",
-			"value": item.ATTRIBUTE_8
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "503",
+		// 	"value": item.ATTRIBUTE_8
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "504",
-			"value": item.ATTRIBUTE_9
+			"value": item.jobFunction
 		})
 
 		mql_data.fieldValues.push({
 			"id": "505",
-			"value": item.ATTRIBUTE_10
+			"value": item.businessUnit
 		})
 
 		mql_data.fieldValues.push({
 			"id": "506",
-			"value": item.ATTRIBUTE_11
+			"value": item.division
 		})
 
 		mql_data.fieldValues.push({
 			"id": "507",
-			"value": item.ATTRIBUTE_12
+			"value": item.seniority
 		})
 
 		mql_data.fieldValues.push({
 			"id": "508",
-			"value": item.ATTRIBUTE_13
+			"value": item.needs
 		})
 
 		mql_data.fieldValues.push({
 			"id": "509",
-			"value": item.ATTRIBUTE_14
+			"value": item.timeLine
 		})
 
 		mql_data.fieldValues.push({
 			"id": "510",
-			"value": item.ATTRIBUTE_15
+			"value": item.marketingEvent
 		})
 
 		mql_data.fieldValues.push({
 			"id": "511",
-			"value": item.ATTRIBUTE_16
+			"value": item.privacyPolicyYn
 		})
 
 		mql_data.fieldValues.push({
 			"id": "521",
-			"value": utils.timeConverter("GET_UNIX", item.ATTRIBUTE_17)
+			"value": utils.timeConverter("GET_UNIX", item.privacyPolicyDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "513",
-			"value": item.ATTRIBUTE_18
+			"value": item.transferOutsideEeaYn
 		})
 
 		mql_data.fieldValues.push({
 			"id": "520",
-			"value": utils.timeConverter("GET_UNIX", item.ATTRIBUTE_19)
+			"value": utils.timeConverter("GET_UNIX", item.transferOutsideEeaDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "515",
-			"value": item.ATTRIBUTE_20
+			"value": item.eloquaProduct1
 		})
 
 		mql_data.fieldValues.push({
 			"id": "516",
-			"value": item.ATTRIBUTE_21
+			"value": item.eloquaProduct2
 		})
 
 		mql_data.fieldValues.push({
 			"id": "517",
-			"value": item.ATTRIBUTE_22
+			"value": item.eloquaProduct3
 		})
 
 		mql_data.fieldValues.push({
 			"id": "518",
-			"value": item.ATTRIBUTE_23
+			"value": item.verticalType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "519",
-			"value": utils.timeConverter("GET_UNIX", item.REGISTER_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.registerDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "522",
-			"value": utils.timeConverter("GET_UNIX", item.TRANSFER_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.transferDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "523",
-			"value": item.TRANSFER_FLAG
+			"value": item.transferFlag
 		})
 
 		mql_data.fieldValues.push({
 			"id": "524",
-			"value": utils.timeConverter("GET_UNIX", item.LAST_UPDATE_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
+		});
+
+		mql_list.push(mql_data);
+	}
+
+	return mql_list;
+}
+
+
+function TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
+	let mql_list = [];
+	for (const item of request_data) {
+		let mql_data = {};
+		mql_data.fieldValues = [];
+
+		mql_data.name = item.email;
+		mql_data.contactId = item.contactId;
+		mql_data.isMapped = "Yes";
+		mql_data.type = "CustomObjectData";
+
+		mql_data.fieldValues.push({
+			"id": "1303",
+			"value": item.interfaceId
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1304",
+			"value": item.leadName
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1305",
+			"value": item.siteName
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1306",
+			"value": item.leadSourceName
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1307",
+			"value": item.leadSourceType
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1308",
+			"value": item.entryType
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1309",
+			"value": item.account
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1310",
+			"value": item.contactPoint
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1311",
+			"value": item.corporation
+		})
+
+		// mql_data.fieldValues.push({
+		// 	"id": "1312",
+		// 	"value": item.OWNER
+		// })
+
+		mql_data.fieldValues.push({
+			"id": "1313",
+			"value": item.address
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1314",
+			"value": item.description
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1315",
+			"value": item.contactId
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1316",
+			"value": item.budget
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1317",
+			"value": item.verticalType2
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1318",
+			"value": item.email
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1319",
+			"value": item.phone
+		})
+
+		// mql_data.fieldValues.push({
+		// 	"id": "1320",
+		// 	"value": item.ATTRIBUTE_6
+		// })
+
+		mql_data.fieldValues.push({
+			"id": "1321",
+			"value": item.region
+		})
+
+		// mql_data.fieldValues.push({
+		// 	"id": "1322",
+		// 	"value": item.ATTRIBUTE_8
+		// })
+
+		mql_data.fieldValues.push({
+			"id": "1323",
+			"value": item.jobFunction
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1324",
+			"value": item.businessUnit
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1325",
+			"value": item.division
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1326",
+			"value": item.seniority
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1327",
+			"value": item.needs
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1328",
+			"value": item.timeLine
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1329",
+			"value": item.marketingEvent
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1330",
+			"value": item.privacyPolicyYn
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1338",
+			"value": utils.timeConverter("GET_UNIX", item.privacyPolicyDate)
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1331",
+			"value": item.transferOutsideEeaYn
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1337",
+			"value": utils.timeConverter("GET_UNIX", item.transferOutsideEeaDate)
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1332",
+			"value": item.eloquaProduct1
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1333",
+			"value": item.eloquaProduct2
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1334",
+			"value": item.eloquaProduct3
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1335",
+			"value": item.verticalType
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1336",
+			"value": utils.timeConverter("GET_UNIX", item.registerDate)
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1339",
+			"value": utils.timeConverter("GET_UNIX", item.transferDate)
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1340",
+			"value": item.transferFlag
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1341",
+			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
 		});
 
 		mql_list.push(mql_data);
@@ -717,12 +745,14 @@ function CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 
 async function mqldata_to_eloqua_send( parent_id , convert_mql_data) {
 	let return_list = [];
+	console.log(parent_id);
+	console.log(convert_mql_data);
 	for (const mqldata of convert_mql_data) {
 		await b2bkr_eloqua.data.customObjects.data.create(parent_id, mqldata).then((result) => {
-			// console.log(result.data);
+			
 			return_list.push(result.data);
 		}).catch((err) => {
-			console.error(err);
+			// console.error(err);
 			console.error(err.message);
 		});
 	}
@@ -736,7 +766,7 @@ function mqldata_push_customobjectid(origin_data, update_data) {
 		for (const update_item of update_data) {
 			// console.log("origin contact id : " + origin_data[i].ATTRIBUTE_1);
 			// console.log("update contact id : " + update_item.contactId);
-			if (origin_data[i].ATTRIBUTE_1 == update_item.contactId) {
+			if (origin_data[i].contactId == update_item.contactId) {
 				origin_data[i]['CUSTOMOBJECT_ID'] = update_item.id;
 			}
 		}
@@ -773,38 +803,39 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 				default: business_interface_num = 0; break;
 			}
 
-			result_item.INTERFACE_ID = moment().format('YYYYMMDD') + business_interface_num + lpad(seq_cnt, 5, "0");
+			result_item.interfaceId = moment().format('YYYYMMDD') + business_interface_num + lpad(global_seq_cnt, 5, "0");
 			//리드네임 [MQL]Subsidiary_BU_Platform&Activity_Register Date+Hour 값을 조합
 			//리드네임 {{Business Unit}}_{{Subsidiary}}_{{Platform}}_{{Activity}}_{{Date}}
 			//리드네임 {{Business Unit}}_{{Subsidiary}}_{{Platform&Activity}}_{{Date}}
 			//리드네임 {{100229}}_{{100196}}_{{100202}}_{{100026}}
 			//리드네임 [MQL]Subsidiary_BU_Platform&Activity_Register Date+Hour 값을 조합
 
-			seq_cnt = seq_cnt + 1;
+			global_seq_cnt = global_seq_cnt + 1;
 
 			
 
-			result_item.LEAD_NAME =
+			result_item.leadName =
 				//GetCustomFiledValue(FieldValues_data, 100229) + "_" +
 				"[MQL]" + GetCustomFiledValue(FieldValues_data, 100196) + "_" +
 				business_department + "_" +
 				GetCustomFiledValue(FieldValues_data, 100202) + "_" +
 				moment().format('YYYYMMDD');
 
-			result_item.SITE_NAME = GetCustomFiledValue(FieldValues_data, 100187) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100187);        //100187	Territory //SITE_NAME ( 현장명 매핑필드 확인 ) //2021-02-02 기준 데이터 없음
-			result_item.LEAD_SOURCE_TYPE = "11";                                          //default 11 (협의됨) //Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
+			result_item.siteName = GetCustomFiledValue(FieldValues_data, 100187) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100187);        //100187	Territory //SITE_NAME ( 현장명 매핑필드 확인 ) //2021-02-02 기준 데이터 없음
+			result_item.leadSourceName = GetCustomFiledValue(FieldValues_data, 100202) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100202); //리드소스 네임 Platform&Activity 필드 매핑 // 폼에 히든값으로 존재
+			result_item.leadSourceType = "11";                                          //default 11 (협의됨) //Eloqua에서 넘어오는 값이면 By Marketing, 영업인원이 수기입할 경우 By Sales로 지정
 
-			result_item.LEAD_SOURCE_NAME = GetCustomFiledValue(FieldValues_data, 100202) == "" ? "N/A" : GetCustomFiledValue(FieldValues_data, 100202); //리드소스 네임 Platform&Activity 필드 매핑 // 폼에 히든값으로 존재
+			
 
-			result_item.ENTRY_TYPE = "L"                                                  //default L
-			result_item.ACCOUNT = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
-			result_item.CONTACT_POINT =
+			result_item.entryType = "L"                                                  //default L
+			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
+			result_item.contactPoint =
 				GetCustomFiledValue(FieldValues_data, 100172) + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
 				GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
 				GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
-			result_item.CORPORATION = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
-			result_item.OWNER = "";                                                       //(확인필요);
+			result_item.corporation = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
+			// result_item.OWNER = "";                                                       //(확인필요);
 
 
 			let address = "";
@@ -815,55 +846,55 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 
 
 
-			result_item.ADDRESS = address;
+			result_item.address = address;
 			//result_item.DESCRIPTION = GetDataValue(contacts_data.elements[i].description);//설명 Comments, message, inquiry-to-buy-message 필드 중 하나 (확인필요) //DESCRIPTION
 			let description = GetCustomFiledValue(FieldValues_data, 100209);
-			result_item.DESCRIPTION = description.length >= 1500 ? description.substring(0, 1675) : description;      //설명 inquiry-to-buy-message 필드
+			result_item.description = description.length >= 1500 ? description.substring(0, 1675) : description;      //설명 inquiry-to-buy-message 필드
 
-			result_item.ATTRIBUTE_1 = GetDataValue(contacts_data.elements[i].id);         //Eloqua Contact ID
-			result_item.ATTRIBUTE_2 = GetBusiness_Department_data(FieldValues_data, business_department, "Budget"); //PRODUCT LV1의 BU 별 
-			result_item.ATTRIBUTE_3 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_2"); //Vertical Level 2
-			result_item.ATTRIBUTE_4 = GetDataValue(contacts_data.elements[i].emailAddress);   //이메일
-			result_item.ATTRIBUTE_5 = GetDataValue(contacts_data.elements[i].mobilePhone);    //전화번호 (businessPhone 확인필요)
-			result_item.ATTRIBUTE_6 = "";                                                     //(확인필요)
-			result_item.ATTRIBUTE_7 = GetCustomFiledValue(FieldValues_data, 100069);          //지역 - 국가 eloqua filed 정보
-			result_item.ATTRIBUTE_8 = "";
-			result_item.ATTRIBUTE_9 = GetBusiness_Department_data(FieldValues_data, business_department, "Job Function"); //(Job Function 사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_10 = business_department; //(Business Unit 가장 최근 기준 BU값)
+			result_item.contactId = GetDataValue(contacts_data.elements[i].id);         //Eloqua Contact ID
+			result_item.budget = GetBusiness_Department_data(FieldValues_data, business_department, "Budget"); //PRODUCT LV1의 BU 별 
+			result_item.verticalType2 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_2"); //Vertical Level 2
+			result_item.email = GetDataValue(contacts_data.elements[i].emailAddress);   //이메일
+			result_item.phone = GetDataValue(contacts_data.elements[i].mobilePhone);    //전화번호 (businessPhone 확인필요)
+			// result_item.ATTRIBUTE_6 = "";                                                     //(확인필요)
+			result_item.region = GetCustomFiledValue(FieldValues_data, 100069);          //지역 - 국가 eloqua filed 정보
+			// result_item.ATTRIBUTE_8 = "";
+			result_item.jobFunction = GetBusiness_Department_data(FieldValues_data, business_department, "Job Function"); //(Job Function 사업부별 컬럼 확인 필요)
+			result_item.businessUnit = business_department; //(Business Unit 가장 최근 기준 BU값)
 			//result_item.ATTRIBUTE_10 = GetBusiness_Department_data(FieldValues_data, business_department, "Business Unit"); //(Business Unit 사업부별 컬럼 확인 필요)
 
-			result_item.ATTRIBUTE_11 = "";                                                    //division (확인필요) 사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
-			result_item.ATTRIBUTE_12 = GetBusiness_Department_data(FieldValues_data, business_department, "Seniority"); //Seniority
-			result_item.ATTRIBUTE_13 = GetBusiness_Department_data(FieldValues_data, business_department, "Needs");     //PRODUCT LV1의 BU 별 Needs //(Nees 사업부별 컬럼 확인 필요)  // Inquiry Type* Needs
-			result_item.ATTRIBUTE_14 = GetBusiness_Department_data(FieldValues_data, business_department, "TimeLine");  //PRODUCT LV1의 BU 별 Timeline //(Nees 사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_15 = GetCustomFiledValue(FieldValues_data, 100203);                                   //Marketing Event //100203	Marketing Event // 폼 히든값
-			result_item.ATTRIBUTE_16 = GetCustomFiledValue(FieldValues_data, 100213) == "Yes" ? "Y" : "N";              //Privacy Policy YN //100213	Privacy Policy_Agreed // privcy Policy*
+			result_item.division = "";                                                    //division (확인필요) 사업부코드( 코드마스터 필요 ) 예) HE    LGE 앞자리 빼는지 확인 필요
+			result_item.seniority = GetBusiness_Department_data(FieldValues_data, business_department, "Seniority"); //Seniority
+			result_item.needs = GetBusiness_Department_data(FieldValues_data, business_department, "Needs");     //PRODUCT LV1의 BU 별 Needs //(Nees 사업부별 컬럼 확인 필요)  // Inquiry Type* Needs
+			result_item.timeLine = GetBusiness_Department_data(FieldValues_data, business_department, "TimeLine");  //PRODUCT LV1의 BU 별 Timeline //(Nees 사업부별 컬럼 확인 필요)
+			result_item.marketingEvent = GetCustomFiledValue(FieldValues_data, 100203);                                   //Marketing Event //100203	Marketing Event // 폼 히든값
+			result_item.privacyPolicyYn = GetCustomFiledValue(FieldValues_data, 100213) == "Yes" ? "Y" : "N";              //Privacy Policy YN //100213	Privacy Policy_Agreed // privcy Policy*
 
 			var Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomFiledValue(FieldValues_data, 100199));
-			result_item.ATTRIBUTE_17 = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //Privacy Policy Date : 100199	Privacy Policy_AgreedDate
+			result_item.privacyPolicyDate = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //Privacy Policy Date : 100199	Privacy Policy_AgreedDate
 
-			result_item.ATTRIBUTE_18 = GetCustomFiledValue(FieldValues_data, 100210) == "Yes" ? "Y" : "N";     //TransferOutside EEA YN : 100210	TransferOutsideCountry*
+			result_item.transferOutsideEeaYn = GetCustomFiledValue(FieldValues_data, 100210) == "Yes" ? "Y" : "N";     //TransferOutside EEA YN : 100210	TransferOutsideCountry*
 
 			var TransferOutside_EEA_Date = utils.timeConverter("GET_DATE", GetCustomFiledValue(FieldValues_data, 100208));
-			result_item.ATTRIBUTE_19 = TransferOutside_EEA_Date == null ? "" : TransferOutside_EEA_Date; //TransferOutside EEA Date : 100208	TransferOutsideCountry_AgreedDate
+			result_item.transferOutsideEeaDate = TransferOutside_EEA_Date == null ? "" : TransferOutside_EEA_Date; //TransferOutside EEA Date : 100208	TransferOutsideCountry_AgreedDate
 
-			result_item.ATTRIBUTE_20 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_21 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
-			result_item.ATTRIBUTE_22 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Model");        //ELOQUA 내 Product 3 없을경우 NULL // (사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct1 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct2 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
+			result_item.eloquaProduct3 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Model");        //ELOQUA 내 Product 3 없을경우 NULL // (사업부별 컬럼 확인 필요)
 
-			result_item.ATTRIBUTE_23 = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_1");    //Vertical Level_1
+			result_item.verticalType = GetBusiness_Department_data(FieldValues_data, business_department, "Vertical_Level_1");    //Vertical Level_1
 
-			result_item.REGISTER_DATE = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요 //utils.timeConverter("GET_DATE", contacts_data.elements[i].createdAt);
-			result_item.TRANSFER_DATE = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요
-			result_item.TRANSFER_FLAG = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
-			result_item.LAST_UPDATE_DATE = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
+			result_item.registerDate = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요 //utils.timeConverter("GET_DATE", contacts_data.elements[i].createdAt);
+			result_item.transferDate = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요
+			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
+			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
 
 
 
 			let notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
 			// let notBant_emailType_List = ["@goldenplanet.co.kr"];
 			let notBant_email_list = notBant_emailType_List.filter(function (sentence) {
-				return result_item.ATTRIBUTE_4.indexOf(sentence) > -1 ? result_item.ATTRIBUTE_4 : null;
+				return result_item.email.indexOf(sentence) > -1 ? result_item.email : null;
 			});
 
 			// for(let k = 0 ; notBant_emailType_List.length > k ; k++){
@@ -872,7 +903,7 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			// }
 			// console.log(notBant_email_list.length);
 
-			if (result_item.CORPORATION == "" || result_item.CORPORATION == "LGE"   )
+			if (result_item.corporation == "" || result_item.corporation == "LGE"   )
 				result_data.push(result_item);		
 		}
 		catch (e) {
@@ -889,205 +920,205 @@ function CONVERT_B2BGERP_GLOBAL_SUBSIDIARY_MISSING(request_data) {
 		let mql_data = {};
 		mql_data.fieldValues = [];
 
-		mql_data.name = item.ATTRIBUTE_4;
-		mql_data.contactId = item.ATTRIBUTE_1;
+		mql_data.name = item.email;
+		mql_data.contactId = item.contactId;
 		mql_data.isMapped = "Yes";
 		mql_data.type = "CustomObjectData";
 
 		mql_data.fieldValues.push({
 			"id": "905",
-			"value": item.INTERFACE_ID
+			"value": item.interfaceId
 		})
 
 		mql_data.fieldValues.push({
 			"id": "906",
-			"value": item.LEAD_NAME
+			"value": item.leadName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "907",
-			"value": item.SITE_NAME
+			"value": item.siteName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "908",
-			"value": item.LEAD_SOURCE_NAME
+			"value": item.leadSourceName
 		})
 
 		mql_data.fieldValues.push({
 			"id": "909",
-			"value": item.LEAD_SOURCE_TYPE
+			"value": item.leadSourceType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "910",
-			"value": item.ENTRY_TYPE
+			"value": item.entryType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "911",
-			"value": item.ACCOUNT
+			"value": item.account
 		})
 
 		mql_data.fieldValues.push({
 			"id": "912",
-			"value": item.CONTACT_POINT
+			"value": item.contactPoint
 		})
 
 		mql_data.fieldValues.push({
 			"id": "913",
-			"value": item.CORPORATION
+			"value": item.corporation
 		})
 
-		mql_data.fieldValues.push({
-			"id": "914",
-			"value": item.OWNER
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "914",
+		// 	"value": item.OWNER
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "915",
-			"value": item.ADDRESS
+			"value": item.address
 
 		})
 
 		mql_data.fieldValues.push({
 			"id": "916",
-			"value": item.DESCRIPTION
+			"value": item.description
 		})
 
 		mql_data.fieldValues.push({
 			"id": "917",
-			"value": item.ATTRIBUTE_1
+			"value": item.contactId
 		})
 
 		mql_data.fieldValues.push({
 			"id": "918",
-			"value": item.ATTRIBUTE_2
+			"value": item.budget
 		})
 
 		mql_data.fieldValues.push({
 			"id": "919",
-			"value": item.ATTRIBUTE_3
+			"value": item.verticalType2
 		})
 
 		mql_data.fieldValues.push({
 			"id": "920",
-			"value": item.ATTRIBUTE_4
+			"value": item.email
 		})
 
 		mql_data.fieldValues.push({
 			"id": "921",
-			"value": item.ATTRIBUTE_5
+			"value": item.phone
 		})
 
-		mql_data.fieldValues.push({
-			"id": "922",
-			"value": item.ATTRIBUTE_6
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "922",
+		// 	"value": item.ATTRIBUTE_6
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "923",
-			"value": item.ATTRIBUTE_7
+			"value": item.region
 		})
 
-		mql_data.fieldValues.push({
-			"id": "924",
-			"value": item.ATTRIBUTE_8
-		})
+		// mql_data.fieldValues.push({
+		// 	"id": "924",
+		// 	"value": item.ATTRIBUTE_8
+		// })
 
 		mql_data.fieldValues.push({
 			"id": "925",
-			"value": item.ATTRIBUTE_9
+			"value": item.jobFunction
 		})
 
 		mql_data.fieldValues.push({
 			"id": "926",
-			"value": item.ATTRIBUTE_10
+			"value": item.businessUnit
 		})
 
 		mql_data.fieldValues.push({
 			"id": "927",
-			"value": item.ATTRIBUTE_11
+			"value": item.division
 		})
 
 		mql_data.fieldValues.push({
 			"id": "928",
-			"value": item.ATTRIBUTE_12
+			"value": item.seniority
 		})
 
 		mql_data.fieldValues.push({
 			"id": "929",
-			"value": item.ATTRIBUTE_13
+			"value": item.needs
 		})
 
 		mql_data.fieldValues.push({
 			"id": "930",
-			"value": item.ATTRIBUTE_14
+			"value": item.timeLine
 		})
 
 		mql_data.fieldValues.push({
 			"id": "931",
-			"value": item.ATTRIBUTE_15
+			"value": item.marketingEvent
 		})
 
 		mql_data.fieldValues.push({
 			"id": "932",
-			"value": item.ATTRIBUTE_16
+			"value": item.privacyPolicyYn
 		})
 
 		mql_data.fieldValues.push({
 			"id": "940",
-			"value": utils.timeConverter("GET_UNIX", item.ATTRIBUTE_17)
+			"value": utils.timeConverter("GET_UNIX", item.privacyPolicyDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "933",
-			"value": item.ATTRIBUTE_18
+			"value": item.transferOutsideEeaYn
 		})
 
 		mql_data.fieldValues.push({
 			"id": "939",
-			"value": utils.timeConverter("GET_UNIX", item.ATTRIBUTE_19)
+			"value": utils.timeConverter("GET_UNIX", item.transferOutsideEeaDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "934",
-			"value": item.ATTRIBUTE_20
+			"value": item.eloquaProduct1
 		})
 
 		mql_data.fieldValues.push({
 			"id": "935",
-			"value": item.ATTRIBUTE_21
+			"value": item.eloquaProduct2
 		})
 
 		mql_data.fieldValues.push({
 			"id": "936",
-			"value": item.ATTRIBUTE_22
+			"value": item.eloquaProduct3
 		})
 
 		mql_data.fieldValues.push({
 			"id": "937",
-			"value": item.ATTRIBUTE_23
+			"value": item.verticalType
 		})
 
 		mql_data.fieldValues.push({
 			"id": "938",
-			"value": utils.timeConverter("GET_UNIX", item.REGISTER_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.registerDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "941",
-			"value": utils.timeConverter("GET_UNIX", item.TRANSFER_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.transferDate)
 		})
 
 		mql_data.fieldValues.push({
 			"id": "942",
-			"value": item.TRANSFER_FLAG
+			"value": item.transferFlag
 		})
 
 		mql_data.fieldValues.push({
 			"id": "943",
-			"value": utils.timeConverter("GET_UNIX", item.LAST_UPDATE_DATE)
+			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
 		});
 
 		mql_list.push(mql_data);
@@ -1188,20 +1219,38 @@ async function setBant_Update(bant_name, contact_list) {
 
 
 //# region Bant 조건 사업부별 contact 데이터 전송을 하는 함수
-pipe_global_bant_send = async function (business_name, state_date, end_date) {
+pipe_global_bant_send = async function (business_name, state_date, end_date , req, res) {
 	console.log("pipe_global_bant_send function BS NAME : " + business_name);
 	
+	let status = "fullstg"
+	let access_token_data = await utils.getPipe_AccessToken(status);
 
+	let send_url ; 
+	
+	switch(status){
+		//LG전자 파이프라인 개발 URL
+		case "dev" : send_url = "https://lge--dev.my.salesforce.com/services/apexrest/mat/eloqua/lead/global";
+		break;
 
-	//LG전자 운영 URL
-	var send_url = "";
+		//LG전자 파이프라인 스테이징 URL
+		case "stg" : send_url  = "https://lge--sb.my.salesforce.com/services/apexrest/mat/eloqua/lead/global";
+		break;
 
+		//LG전자 파이프라인 실전검증 URL 
+		case "fullstg" : send_url  = "https://lge--fs.my.salesforce.com/services/apexrest/mat/eloqua/lead/global";
+		break;
+
+		//LG전자 파이프라인 운영 URL
+		case "prd" : send_url = "https://lge.my.salesforce.com/services/apexrest/mat/eloqua/lead/global";
+		break;
+	}
+	
 	let contact_list = await get_b2bgerp_global_bant_data(business_name, state_date, end_date);
 
 	// console.log(contacts_data);
 
 
-	if (contact_list != null) {
+	if(contact_list != null){
 
 		// contacts_data : Eloqua 에 Bant 업데이트를 하기 위한 필드
 		// request_data : B2B GERP 에 전송할 데이터
@@ -1209,14 +1258,16 @@ pipe_global_bant_send = async function (business_name, state_date, end_date) {
 		var bant_update_list;
 		if (contact_list) bant_update_list = contact_list.elements;
 
-
-		// console.log(request_data);
+		//pipe test 를 위해 추가
+		
+	
+		
 		// 사업부별 Eloqua Data 건수 및 실제 전송 건수 로그를 쌓기 위함 (이메일 필터링에 의해 Eloqua Data 건수와 실제 전송 건수 는 다를 수 있음)
 		let total_logs = {
 			bsname: business_name,
 			search_time: utils.todayDetail_getDateTime(),
 			eloqua_total: contact_list && contact_list.total ? contact_list.total : 0,
-			convert_total: request_data.length
+			convert_total: request_data ? request_data.length : 0
 		}
 
 
@@ -1227,39 +1278,73 @@ pipe_global_bant_send = async function (business_name, state_date, end_date) {
 
 
 		// MQL Data 전송 전 MQL Data List 를 CustomObject 에 적재하기 위해 데이터 형태 변경
-		let mql_customobject_list = await CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
-
+		// pipe test 를 위해 주석 처리
+		// let mql_customobject_list = await CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
+		let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
+		
 		// MQL Data 전송 전 MQL Data List 를 CustomObject 에 적재 update_mql_data은 customobject 적재값임
 		// pipe test 를 위해 주석 처리
-		// let update_mql_data = await mqldata_to_eloqua_send( 46 , mql_customobject_list);
-
-		// CustomObject 에 적재된 MQL DATA를 CUSTOMBOEJCT_ID 고유값을 추가하여 B2B GERP GLOBAL 로 전송 
+		let update_mql_data = await mqldata_to_eloqua_send( 146 , mql_customobject_list);
+		
+		// CustomObject 에 적재된 MQL DATA를 CUSTOMBOEJCT_ID 고유값을 추가
 		let update_data = await mqldata_push_customobjectid(request_data, update_mql_data);
 		req_res_logs("reqCustomData", business_name, "PIPELINE_GLOBAL" ,  update_data);
+		// console.log(access_token_data);
 
+
+		let token_data = {};
+
+		try{
+			token_data = JSON.parse(access_token_data);
+		}catch (error){
+			if(error) error.stack();
+		}
+		let token_type = token_data.token_type ? token_data.token_type : undefined;
+		let token = token_data.access_token ? token_data.access_token : undefined;
+		
+		// console.log("send_url : " + send_url);
+		// console.log("token_type : " + token_type)
+		// console.log("token : " + token)
+		if(!token_type || !token) return;
 		var headers = {
 			'Content-Type': "application/json",
-			'x-Gateway-APIKey': "키 바꿔야할수도 있음"
+			'Authorization' : token_type + " " + token
 		}
 
+		
 		options = {
 			url: send_url,
 			method: "POST",
 			headers: headers,
-			body: { ContentList: update_data },
+			// body: { ContentList: update_data },
+			// pipe test 를 위해 주석 처리
+			body: { ContentList: request_data },
 			json: true
 		};
-		// pipe test 를 위해 주석 처리
-		return;
-		await request(options, async function (error, response, body) {
+
+		
+		
+
+		//pipe test 를 위한 임시코드
+		await request_promise.post(options, async function (error, response, body) {
+		
+
 			if (error) {
+				console.log(0);
 				console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
 				console.log(error);
 				req_res_logs("bantsend_error", business_name, "PIPELINE_GLOBAL", []);
 			}
-			if (!error && response.statusCode == 200) {
+			else if(!error && response.statusCode != 200 ){
+				console.log(1);
+				req_res_logs("bantsend_not send", business_name, "PIPELINE_GLOBAL", []);
+			}
+			else if (!error && response.statusCode == 200) {
+				console.log(body);
+				req_res_logs("response", business_name, "PIPELINE_GLOBAL", body);
+				console.log(2);
 
-				req_res_logs("response", business_name, "PIPELINE_GLOBAL", body.resultData);
+
 				if (contact_list && contact_list.total) {
 
 
@@ -1285,12 +1370,17 @@ pipe_global_bant_send = async function (business_name, state_date, end_date) {
 					// MQL Data 전송 전 MQL Data List 를 CustomObject 에 적재 update_mql_data은 customobject 적재값임
 					await mqldata_to_eloqua_send( 105 ,temp_nosub_customobject);
 
+					// Pipe Test 를 위해 주석처리
 					var bant_result_list = await setBant_Update(business_name, bant_update_list);
 					req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
 					req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
 				}
+
+				res.json(body);
 			}
+			
 		});
+
 	}
 }
 
@@ -1711,13 +1801,11 @@ function req_res_logs(filename, business_name , folderName, data) {
 
 	var today = moment().tz('Asia/Seoul').format("YYYYMMDD") + "_" + folderName;
 	var dirPath = utils.logs_makeDirectory(today);
-	console.log("fileWrite Path : " + dirPath);
 
 	fs.writeFile(dirPath + filename + "_" + business_name + ".txt", JSON.stringify(data), 'utf8', function (error) {
 		if (error) {
 			console.log(error);
 		} else {
-			console.log('write end');
 		}
 	});
 }
@@ -1809,8 +1897,362 @@ async function mappedGlobalLeadData(data) {
 	return result_list;	
 }
 
+function GetDataValue(contacts_fieldvalue) {
+	try {
+		if (contacts_fieldvalue != undefined) {
+			return contacts_fieldvalue;
+		}
+		else {
+			return "";
+		}
+	}
+	catch (e) {
+		console.log(e);
+		return "";
+	}
+}
+
+
+function GetConvertVerticalType1Code(_Business_Sector_Name) {
+	// 코드	값
+	// 01	4. Corporate (Office/Work Spaces)
+	// 02	6. Education
+	// 03	9. Factory
+	// 04	8. Government Department
+	// 05	2. Hospitality
+	// 08	7. Public Facility
+	// 09	1. Retail
+	// 10	11. Special Purpose
+	// 11	5. Transportation
+	// 15	3. Residential (Home)
+	// 16	10. Power plant/Renewable energy
+
+	var result = "";
+	switch (_Business_Sector_Name) {
+		case "Corporate":
+			result = "01";
+			break;
+		case "Education":
+			result = "02";
+			break;
+		case "Factory":
+			result = "03";
+			break;
+		case "Government Department":
+			result = "04";
+			break;
+		case "Hospitality":
+			result = "05";
+			break;
+		case "Public Facility": //Eloqua value값 추가 필요
+			result = "08";
+			break;
+		case "Retail":
+			result = "09";
+			break;
+		case "Special purpose": //Eloqua value값 추가 필요
+			result = "10";
+			break;
+		case "Transportation":
+			result = "11";
+			break;
+		case "Residential":  //Eloqua valuer값 추가 필요
+			result = "15";
+			break;
+		//case "Power plant / Renewable energy":  //Eloqua valuer값 추가 필요
+		case "Power plant":  //Eloqua valuer값 추가 필요
+			result = "16";
+			break;
+	}
+	return result;
+}
+
+
+
+function GetConvertVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival2_Name) {
+	// 코드	값
+	// 0910	1-1. Restaurant / F&B / QSR
+	// 0914	1-2. Specialty store
+	// 0907	1-3. Hyper market & grocery
+	// 0911	1-4. Shopping mall
+	// 0913	1-5. Other Stores
+	// 0503	2-1. Hotel / Resort / Casino
+	// 0501	2-2. Cruise
+	// 0502	2-3. Hospital
+	// 0504	2-4. LTC (Long-Term Care)
+	// 0508	2-5. Dormitory
+	// 0509	2-6. Fitness
+	// 0507	2-7. Others
+	// 1501	3-1. Apartment
+	// 1502	3-2. Officetel
+	// 1503	3-3. Townhouse
+	// 1504	3-4. Villa / Single-Family Home
+	// 1505	3-5. Others
+	// 0113	4-1. Office
+	// 0114	4-2. Conference/Meeting Room/Collaboration spaces
+	// 0115	4-3. Auditorium
+	// 0116	4-4. Control/Command room
+	// 0106	4-5. Broadcasting/Studio
+	// 0117	4-6. Traning/Experience center
+	// 0118	4-7. Show room/Briefing center
+	// 0119	4-8. Common spaces 
+	// 0120	4-9. Client interaction venue/space﻿
+	// 0121	4-10. Others
+	// 1101	5-1. Air Transport
+	// 1104	5-2. Road
+	// 1103	5-3. Railway & Metro
+	// 1102	5-4. Sea
+	// 1105	5-5. Others
+	// 0201	6-1. K12 (Kindergarten & Schools)
+	// 0202	6-2. HigherEd (College & University)
+	// 0205	6-3. Institute & Academy
+	// 0204	6-4. Others
+	// 0816	7-1. Culture
+	// 0813	7-2. Sports
+	// 0817	7-3. Religious facility
+	// 0818	7-4. Outdoor Advertisement
+	// 0815	7-5. Others
+	// 0403	8-1. General Government Office
+	// 0404	8-2. Military
+	// 0406	8-3. Police/Fire station
+	// 0402	8-4. Welfare facilities 
+	// 0410	8-5. Others
+	// 0309	9-1. Manufacturing factory
+	// 0310	9-2. Chemical factory
+	// 0311	9-3. Pharmaceutical factory
+	// 0301	9-4. Others
+	// 1601	10-1. Power plant
+	// 1602	10-2. Renewable energy
+	// 1603	10-3. Energy Storage & Saving
+	// 1604	10-4. Others
+	// 1011	11-1. Mixed-use (Multi Complex)
+	// 1009	11-2. Botanical Garden / Green House
+	// 1005	11-3.Telecom base station / Data, Call center
+	// 1010	11-4. Others
+
+	var result = "";
+	switch (GetConvertVerticalType1Code(_Business_Sector_Name)) {
+		case "09":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Restaurant / F&B / QSR":
+					result = "0910"; break;
+
+				case "Specialty store":
+					result = "0914"; break;
+
+				case "Hyper market & grocery":
+					result = "0907"; break;
+
+				case "Shopping mall":
+					result = "0911"; break;
+
+				case "Other Stores":
+					result = "0913"; break;
+			}
+			break;
+
+		case "05":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Hotel / Resort / Casino":
+					result = "0503"; break;
+
+				case "Cruise":
+					result = "0501"; break;
+
+				case "Hospital":
+					result = "0502"; break;
+
+				case "LTC (Long-Term Care)":
+					result = "0504"; break;
+
+				case "Dormitory":
+					result = "0508"; break;
+
+				case "Fitness":
+					result = "0509"; break;
+
+				case "Others":
+					result = "0507"; break;
+			}
+			break;
+
+		case "15":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Apartment":
+					result = "1501"; break;
+
+				case "Officetel":
+					result = "1502"; break;
+
+				case "Townhouse":
+					result = "1503"; break;
+
+				case "Villa / Single-Family Home":
+					result = "1504"; break;
+
+				case "Others":
+					result = "1505"; break;
+			}
+			break;
+
+		case "01":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Office":
+					result = "0113"; break;
+
+				case "Conference/Meeting Room/Collaboration spaces":
+					result = "0114"; break;
+
+				case "Auditorium":
+					result = "0115"; break;
+
+				case "Control/Command room":
+					result = "0116"; break;
+
+				case "Broadcasting/Studio":
+					result = "0106"; break;
+
+				case "Training/Experience center":
+					result = "0117"; break;
+
+				case "Show room/Briefing center":
+					result = "0118"; break;
+
+				case "Common spaces ":
+					result = "0119"; break;
+
+				case "Client interaction venue/space":
+					result = "0120"; break;
+
+				case "Others":
+					result = "0121"; break;
+			}
+			break;
+
+		case "11":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Air Transport":
+					result = "1101"; break;
+
+				case "Road":
+					result = "1104"; break;
+
+				case "Railway & Metro":
+					result = "1103"; break;
+
+				case "Sea":
+					result = "1102"; break;
+
+				case "Others":
+					result = "1105"; break;
+			}
+			break;
+
+		case "02":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "K12 (Kindergarten & Schools)":
+					result = "0201"; break;
+
+				case "HigherEd (College & University)":
+					result = "0202"; break;
+
+				case "Institute & Academy":
+					result = "0205"; break;
+
+				case "Others":
+					result = "0204"; break;
+			}
+			break;
+
+		case "08":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Culture":
+					result = "0816"; break;
+
+				case "Sports":
+					result = "0813"; break;
+
+				case "Religious facility":
+					result = "0817"; break;
+
+				case "Outdoor Advertisement":
+					result = "0818"; break;
+
+				case "Others":
+					result = "0815"; break;
+			}
+			break;
+
+		case "04":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "General Government Office":
+					result = "0403"; break;
+
+				case "Military":
+					result = "0404"; break;
+
+				case "Police/Fire station":
+					result = "0406"; break;
+
+				case "Welfare facilities ":
+					result = "0402"; break;
+
+				case "Others":
+					result = "0410"; break;
+			}
+			break;
+
+		case "03":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Manufacturing factory":
+					result = "0309"; break;
+
+				case "Chemical factory":
+					result = "0310"; break;
+
+				case "Pharmaceutical factory":
+					result = "0311"; break;
+
+				case "Others":
+					result = "0301"; break;
+			}
+			break;
+
+		case "16":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Power plant":
+					result = "1601"; break;
+
+				case "Renewable energy":
+					result = "1602"; break;
+
+				case "Energy Storage & Saving":
+					result = "1603"; break;
+
+				case "Others":
+					result = "1604"; break;
+			}
+			break;
+
+		case "10":
+			switch (_Business_Sector_Vertival2_Name) {
+				case "Mixed-use (Multi Complex)":
+					result = "1011"; break;
+
+				case "Botanical Garden / Green House":
+					result = "1009"; break;
+
+				case "Telecom base station / Data, Call center":
+					result = "1005"; break;
+
+				case "Others":
+					result = "1010"; break;
+			}
+			break;
+	}
+	return result;
+}
 
 module.exports.pipe_global_bant_send = pipe_global_bant_send;
-module.exports.pipe_kr_bant_send = pipe_kr_bant_send;
 module.exports.pipe_global_lead_update = pipe_global_lead_update;
 module.exports = router;
