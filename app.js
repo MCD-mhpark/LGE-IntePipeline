@@ -113,8 +113,8 @@ global.logManager = require('./routes/common/history.js');
 
 var index =  require('./routes/index'); 
 // Data/contacts 만 쓰는 project
-var integrated_global_pipeline_data_contacts = require('./routes/integrated_pipeline/global_contacts');
-var integrated_kr_pipeline_data_contacts = require('./routes/integrated_pipeline/kr_contacts');
+var b2bgerp_global_data_contacts = require('./routes/integrated_pipeline/global_contacts');
+var b2bgerp_kr_us_data_contacts = require('./routes/integrated_pipeline/kr_contacts');
 var etc_function = require('./routes/common/etc_function');
 
 const { url } = require('inspector');
@@ -144,8 +144,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/index', index);
 
 
-app.use('/integrated_pipeline/global_contacts', integrated_global_pipeline_data_contacts);
-app.use('/integrated_pipeline/kr_contacts', integrated_kr_pipeline_data_contacts);
+app.use('/integrated_pipeline/global_contacts', b2bgerp_global_data_contacts);
+app.use('/integrated_pipeline/kr_contacts', b2bgerp_kr_us_data_contacts);
 app.use('/etc_function/', etc_function);
 
 
