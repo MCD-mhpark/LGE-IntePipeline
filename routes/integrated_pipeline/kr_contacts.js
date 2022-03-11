@@ -478,6 +478,5 @@ function GetCustomObjectValue(filed_id, element, type) {
 }
 
 
-
-module.exports.pipe_kr_bant_send = pipe_kr_bant_send;
 module.exports = router;
+module.exports.pipe_kr_bant_send = pipe_kr_bant_send;
