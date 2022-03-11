@@ -136,7 +136,7 @@ pipe_kr_bant_send = async function (req, res){
 			errorInfo : null ,
 			errorMessage : "보낼 데이터가 없습니다."
 		}
-		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "PIPELINE_KR" , noneData );
+		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분")  ,"KR" ,  "PIPELINE_KR" , noneData );
 		
 	}
 

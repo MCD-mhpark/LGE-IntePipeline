@@ -215,6 +215,8 @@ if(__dirname == "/home/opc/LGE/integrated_pipeline"){
 	schedule_Request_PIPELINE_KR();
 } 
 
+console.log(b2bgerp_kr_us_data_contacts);
+
 if(os.type().indexOf("Windows") > -1) global.OS_TYPE = "Windows"
 else global.OS_TYPE = "Linux";
 
