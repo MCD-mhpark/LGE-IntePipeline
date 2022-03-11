@@ -767,7 +767,7 @@ function mqldata_push_customobjectid(origin_data, update_data) {
 			// console.log("origin contact id : " + origin_data[i].ATTRIBUTE_1);
 			// console.log("update contact id : " + update_item.contactId);
 			if (origin_data[i].contactId == update_item.contactId) {
-				origin_data[i]['CUSTOMOBJECT_ID'] = update_item.id;
+				origin_data[i]['customObjectId'] = update_item.id;
 			}
 		}
 	}
