@@ -144,8 +144,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/index', index);
 
 
-app.use('/integrated_global_pipeline/contacts', integrated_global_pipeline_data_contacts);
-app.use('/integrated_kr_pipeline/contacts', integrated_kr_pipeline_data_contacts);
+app.use('/integrated_pipeline/global_contacts', integrated_global_pipeline_data_contacts);
+app.use('/integrated_pipeline/kr_contacts', integrated_kr_pipeline_data_contacts);
 app.use('/etc_function/', etc_function);
 
 

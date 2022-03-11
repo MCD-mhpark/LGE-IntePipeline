@@ -122,11 +122,11 @@ pipe_kr_bant_send = async function (req, res){
 	            if(B2B_GERP_KR_DATA.length > 0 ) {
 	                // console.log(B2B_GERP_KR_DATA);
 	                //Pipe Line 테스트를 위해 주석 처리
-					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+					// let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
 					// console.log(trans_up_list[0].fieldValues);
-					await sendTransfer_Update(parentId , trans_up_list);
+					// await sendTransfer_Update(parentId , trans_up_list);
 					
-					res.json(body);
+					// res.json(body);
 	            }   
 	        }
 	    });
