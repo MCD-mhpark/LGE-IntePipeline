@@ -203,7 +203,7 @@ function schedule_Request_PIPELINE_KR(){
 	//test data
 	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
 		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
-		await b2bgerp_kr_us_data_contacts.senderToB2BGERP_KR();
+		await b2bgerp_kr_us_data_contacts.pipe_kr_bant_send();
 	});
 }
 
