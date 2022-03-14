@@ -21,10 +21,10 @@ pipe_kr_bant_send = async function (req, res){
 	
 	// console.log(COD_list);
 	//Pipe Line 테스트를 위해 주석 처리
-	// var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
-	var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
+	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
+	// var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
 
-	let status = "dev"
+	let status = "fullstg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -82,7 +82,7 @@ pipe_kr_bant_send = async function (req, res){
 			json: true
 		};
 
-		// console.log(options)
+		console.log(B2B_GERP_KR_DATA);
 
 		req_res_logs("reqRequest_" + moment().tz('Asia/Seoul').format("HH시mm분") , "KR" , "PIPELINE_KR" , options );
         req_res_logs("reqEloqua_" + moment().tz('Asia/Seoul').format("HH시mm분") , "KR" , "PIPELINE_KR" , COD_list );

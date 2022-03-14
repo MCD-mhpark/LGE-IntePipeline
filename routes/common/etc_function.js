@@ -61,7 +61,7 @@ router.get('/optionlist_search', function (req, res, next) {
 	var queryString = {
 	}
 
-	console.log();
+
 	
 	b2bgerp_eloqua.assets.optionLists.getOne(27 , queryString).then((result) => {
 		console.log(result.data);

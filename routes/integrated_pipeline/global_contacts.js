@@ -1226,7 +1226,7 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 
 	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
 
-	let status = "dev"
+	let status = "fullstg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
