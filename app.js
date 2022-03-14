@@ -172,7 +172,7 @@ app.use(function(err, req, res, next) {
 function schedule_Request_PIPELINE_GLOBAL(){
 	let uniqe_jobs_name = "PIPELINE_GLOBAL" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "0";
+	let minutes = "4";
 	let hours = "12";
 	let dayofmonth = "*";
 	let month = "*";
@@ -184,7 +184,7 @@ function schedule_Request_PIPELINE_GLOBAL(){
 		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
 		let bant_list = ["AS" , "CM" , "ID" , "IT" , "Solution"];
 		bant_list.forEach( async BusinessName =>{
-			await b2bgerp_global_data_contacts.bant_send(BusinessName);
+			await b2bgerp_global_data_contacts.pipe_global_bant_send(BusinessName);
 		})
 			
 	});
@@ -215,6 +215,7 @@ if(__dirname == "/home/opc/LGE/integrated_pipeline"){
 	schedule_Request_PIPELINE_KR();
 } 
 
+console.log(b2bgerp_global_data_contacts);
 console.log(b2bgerp_kr_us_data_contacts);
 
 if(os.type().indexOf("Windows") > -1) global.OS_TYPE = "Windows"

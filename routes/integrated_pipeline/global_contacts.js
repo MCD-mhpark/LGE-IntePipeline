@@ -2259,6 +2259,6 @@ function GetConvertVerticalType2Code(_Business_Sector_Name, _Business_Sector_Ver
 	return result;
 }
 
+module.exports = router;
 module.exports.pipe_global_bant_send = pipe_global_bant_send;
 module.exports.pipe_global_lead_update = pipe_global_lead_update;
-module.exports = router;
