@@ -312,7 +312,8 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 function Convert_B2BGERP_KR_DATA(_cod_data) {
 	var cod_elements = _cod_data.elements;
 	var result_data = [];
-
+	
+	if(!cod_elements) return;
 	for (var i = 0; i < cod_elements.length; i++) {
 		try {
 			var result_item = new B2B_GERP_KR_ENTITY();
