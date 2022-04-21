@@ -202,7 +202,6 @@ function schedule_Request_PIPELINE_KR(){
 
 	//test data
 	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
-		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
 		await b2bgerp_kr_us_data_contacts.pipe_kr_bant_send();
 	});
 }
@@ -215,8 +214,8 @@ if(__dirname == "/home/opc/LGE/integrated_pipeline"){
 	schedule_Request_PIPELINE_KR();
 } 
 
-console.log(b2bgerp_global_data_contacts);
-console.log(b2bgerp_kr_us_data_contacts);
+// console.log(b2bgerp_global_data_contacts);
+// console.log(b2bgerp_kr_us_data_contacts);
 
 if(os.type().indexOf("Windows") > -1) global.OS_TYPE = "Windows"
 else global.OS_TYPE = "Linux";

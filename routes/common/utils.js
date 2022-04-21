@@ -101,10 +101,27 @@ exports.yesterday_getDateTime = function (){
         start : start , 
         end : end
     }
+}
+
+
+
+exports.yesterday_getDetailDateTime = function (){
+    //ex date = 2019-12-29 19:48:08
+    //ex unix =  1577616544 
+
+    // var today = moment().format("YYYY-MM-DD");
+    let start = moment().add("-1","d").format("YYYY-MM-DD 10:00:00"); 
+    start = moment(start).format("YYYY-MM-DD 10:00:00");
+    let end = moment().format("YYYY-MM-DD 11:00:00"); 
+    end = moment(end).format("YYYY-MM-DD 11:00:00");
+
+    return {
+        start : start , 
+        end : end
+    }
 
 
 }
-
 
 
 exports.today_getDateTime = function (){

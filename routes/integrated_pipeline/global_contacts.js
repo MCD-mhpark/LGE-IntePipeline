@@ -1817,58 +1817,152 @@ function req_res_logs(filename, business_name , folderName, data) {
 }
 
 pipe_global_lead_update = async function (req, res, next) {
+
+	let status = "dev"
+	let access_token_data = await utils.getPipe_AccessToken(status);
+
+	let send_url ; 
+
+	
+	switch(status){
+		//LG전자 파이프라인 개발 URL
+		case "dev" : send_url = "https://lge--dev.my.salesforce.com/services/apexrest/mat/eloqua/lead/number";
+		break;
+
+		//LG전자 파이프라인 스테이징 URL
+		case "stg" : send_url  = "https://lge--sb.my.salesforce.com/services/apexrest/mat/eloqua/lead/number";
+		break;
+
+		//LG전자 파이프라인 실전검증 URL 
+		case "fullstg" : send_url  = "https://lge--fs.my.salesforce.com/services/apexrest/mat/eloqua/lead/number";
+		break;
+
+		//LG전자 파이프라인 운영 URL
+		case "prd" : send_url = "https://lge.my.salesforce.com/services/apexrest/mat/eloqua/lead/number";
+		break;
+	}
+
+	const parent_id = 146;
+	let LeadNumberData_list = await getLeadnumberData(parent_id);
+	let ConvertLeadNumberData_list = await ConvertLeadtoJSON(LeadNumberData_list.elements);
+
+	// res.json(ConvertLeadNumberData_list);
+
 	console.log("Pipeline pipe_global_lead_update");
 
-	//Global_B2B GERP LeadNumber-Eloqua I/F
-	const parent_id = 46;
+	let token_data = {};
 
-	var form = {};
-	var success_count = 0;
-	var fail_count = 0;
-	var result_list = [];
+	try{
+		token_data = JSON.parse(access_token_data);
+	}catch (error){
+		if(error) error.stack();
+	}
+	let token_type = token_data.token_type ? token_data.token_type : undefined;
+	let token = token_data.access_token ? token_data.access_token : undefined;
 	
-	if(!req.body.ContentList){
-		res.json({
-			status : "400",
-			Message : "Not Found Data"
-		})
-		return;
-	}
-	var B2B_GERP_GLOBAL_LEAD_DATA = await mappedGlobalLeadData(req.body.ContentList);
-	req_res_logs("reqLeadData_" + moment().tz('Asia/Seoul').format("HH시mm분") , "PIPELINE_GLOBAL_LEAD" , "PIPELINE_GLOBAL_LEAD_UPDATE", B2B_GERP_GLOBAL_LEAD_DATA );
-
-	for (var item of B2B_GERP_GLOBAL_LEAD_DATA) {
-
-		await b2bgerp_eloqua.data.customObjects.data.update(parent_id, item.id, item).then((result) => {
-			
-			result_list.push({
-				name: item.id, 
-                status: 200, 
-                message: "success"
-			});
-
-			success_count++;
-		}).catch((err) => {
-			console.log(err);
-			
-			result_list.push({
-				name: item.id, 
-				status: err.response.status ? err.response.status : "ETC Error",
-				message: err.response.statusText ? err.response.statusText : "Unknown Error"
-			});
-
-			fail_count++;
-		})
+	// console.log("send_url : " + send_url);
+	// console.log("token_type : " + token_type)
+	// console.log("token : " + token)
+	if(!token_type || !token) return;
+	var headers = {
+		'Content-Type': "application/json",
+		'Authorization' : token_type + " " + token
 	}
 
-	form.total = B2B_GERP_GLOBAL_LEAD_DATA.length;
-    form.success_count = success_count;
-    form.fail_count = fail_count;
-    form.result_list = result_list;
+	var yesterday_Object = utils.yesterday_getDateTime();
+	console.log(yesterday_Object.start)
+	let options = {
+		// url: send_url + "?convertedDate=" + yesterday_Object.start,
+		url: send_url + "?convertedDate=2022-04-05" ,
+		method: "get",
+		headers: headers,
+		// body: { ContentList: update_data },
+		// pipe test 를 위해 주석 처리
+		// params : { convertedDate: "2022-04-19" },
+		json: true
+	};
 
-	req_res_logs("reqLeadResult_" + moment().tz('Asia/Seoul').format("HH시mm분") , "PIPELINE_GLOBAL_LEAD" , "PIPELINE_GLOBAL_LEAD_UPDATE" , form );
+	
+	let getLeadnumberResponse_list = await getResponseLeadData(options);
 
-    res.json(form);	
+	res.json(getLeadnumberResponse_list);
+
+	
+
+
+	
+}
+
+
+async function getLeadnumberData(parent_id) {
+	var yesterday_Object = utils.yesterday_getDetailDateTime();
+
+
+	console.log(yesterday_Object.start);
+	console.log(yesterday_Object.end);
+	// 2022-02-01 00:00:00 to unix time : 1643641200
+	var queryString = {
+		depth: "complete",
+		search : "?LEAD_NUMBER1=''ATTRIBUTE_17_Privacy_Policy_Date_1>'" + yesterday_Object.start + "'ATTRIBUTE_17_Privacy_Policy_Date_1<'" + yesterday_Object.end +"'"
+		// search : "?LEAD_NUMBER1=''ATTRIBUTE_17_Privacy_Policy_Date_1>'1643641200'ATTRIBUTE_17_Privacy_Policy_Date_1<'1683641200'" 
+		// search : "?LEAD_NUMBER1=''ATTRIBUTE_17_Privacy_Policy_Date_1>'2022-04-19 01:00:00'ATTRIBUTE_17_Privacy_Policy_Date_1<'2022-04-21 24:00:00'" 
+		// search : "?LEAD_NUMBER1=''ATTRIBUTE_17_Privacy_Policy_Date_1>'1643641200'"
+	}
+	let return_data ;
+	console.log(1234);
+	// console.log(b2bgerp_eloqua.assets.customObjects);
+	await b2bkr_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
+		// console.log(result.data);
+		return_data = result.data;
+	}).catch((err) => {
+		console.error(err.message);
+	});
+
+	return return_data;
+}
+
+async function ConvertLeadtoJSON(data_list){
+
+	let lead_list = [];
+
+	for(let i = 0 ; i < data_list.length ; i ++){
+		let lead_data = {};
+
+		lead_data.EloquaId = data_list[i].contactId
+		lead_data.LeadSeq = "";
+		lead_data.LeadCreateDate = ""; 
+		lead_data.CustomobjectId = data_list[i].id
+
+		await lead_list.push(lead_data);
+	}
+
+	return lead_list;
+}
+
+
+async function getResponseLeadData(options){
+
+	let response_data ;
+	await request_promise.get(options, async function (error, response, body) {
+		if (error) {
+			console.log(0);
+			console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
+			console.log(error);
+			req_res_logs("error", "GET_LEAD", "PIPELINE_GLOBAL", []);
+		}
+		else if(!error && response.statusCode != 200 ){
+			console.log(1);
+			req_res_logs("notget", "GET_LEAD", "PIPELINE_GLOBAL", []);
+		}
+		else if (!error && response.statusCode == 200) {
+			console.log(body);
+			req_res_logs("response", "GET_LEAD", "PIPELINE_GLOBAL", body);
+			console.log(2);
+			response_data = body;
+		}
+	});
+
+	return response_data;
 }
 
 async function mappedGlobalLeadData(data) {

@@ -89,6 +89,25 @@ router.get('/optionlist_search', function (req, res, next) {
 
 
 
+router.post('/customobjectData_search', function (req, res, next) {
+	let data = req.body.data;
+	let status = req.body.status
+	let parent_id = req.body.parent_id
+	var queryString = {
+		depth: "complete",
+		// search : "?ATTRIBUTE_4_____1='" + email + "'" 
+		search : status == 'email' ? "?ATTRIBUTE_4_____1='" + data + "'"  : "?LEAD_NUMBER1='" + data + "'" 
+	}
+
+	console.log(1234);
+	// console.log(b2bgerp_eloqua.assets.customObjects);
+	b2bkr_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
+		// console.log(result.data);
+		res.json(result.data);
+	}).catch((err) => {
+		console.error(err.message);
+	});
+});
 
 
 module.exports = router;
