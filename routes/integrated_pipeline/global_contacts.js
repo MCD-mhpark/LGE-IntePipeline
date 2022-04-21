@@ -1843,8 +1843,8 @@ pipe_global_lead_update = async function (req, res, next) {
 	}
 
 	const parent_id = 146;
-	let LeadNumberData_list = await getLeadnumberData(parent_id);
-	let ConvertLeadNumberData_list = await ConvertLeadtoJSON(LeadNumberData_list.elements);
+	// let LeadNumberData_list = await getLeadnumberData(parent_id);
+	// let ConvertLeadNumberData_list = await ConvertLeadtoJSON(LeadNumberData_list.elements);
 
 	// res.json(ConvertLeadNumberData_list);
 
@@ -1872,8 +1872,8 @@ pipe_global_lead_update = async function (req, res, next) {
 	var yesterday_Object = utils.yesterday_getDateTime();
 	console.log(yesterday_Object.start)
 	let options = {
-		// url: send_url + "?convertedDate=" + yesterday_Object.start,
-		url: send_url + "?convertedDate=2022-04-05" ,
+		url: send_url + "?convertedDate=" + yesterday_Object.start,
+		// url: send_url + "?convertedDate=2022-04-05" ,
 		method: "get",
 		headers: headers,
 		// body: { ContentList: update_data },
