@@ -208,9 +208,9 @@ function schedule_Request_PIPELINE_KR(){
 
 // Leadnumber update 테스트용 스케쥴러
 function schedule_Request_PIPELINE_LEADUPDATE(){
-	let uniqe_jobs_name = "PIPELINE_KR" +  moment().format('YYYYMMDD');
+	let uniqe_jobs_name = "PIPELINE_LEADUPDATE" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "20";
+	let minutes = "30";
 	let hours = "17";
 	let dayofmonth = "*";
 	let month = "*";
