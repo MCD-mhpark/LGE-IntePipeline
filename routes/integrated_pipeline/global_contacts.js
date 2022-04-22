@@ -504,7 +504,7 @@ function CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 
 		mql_data.fieldValues.push({
 			"id": "519",
-			"value": utils.timeConverter("GET_UNIX", item.registerDate)
+			"value": utils.timeConverter("GET_UNIX", item.registerDate) 
 		})
 
 		mql_data.fieldValues.push({
@@ -1842,12 +1842,9 @@ pipe_global_lead_update = async function (req, res, next) {
 		break;
 	}
 
-	const parent_id = 146;
-	// let LeadNumberData_list = await getLeadnumberData(parent_id);
-	// let ConvertLeadNumberData_list = await ConvertLeadtoJSON(LeadNumberData_list.elements);
-
-	// res.json(ConvertLeadNumberData_list);
-
+	// const parentId = 46;  // B2B GERP GLOBAL CustomObject ID
+	const parent_id = 146;  // TEST B2B GERP GLOBAL CustomObject ID
+	
 	console.log("Pipeline pipe_global_lead_update");
 
 	let token_data = {};
@@ -1884,15 +1881,50 @@ pipe_global_lead_update = async function (req, res, next) {
 
 	
 	let getLeadnumberResponse_list = await getResponseLeadData(options);
+	// res.json(getLeadnumberResponse_list);
 
-	res.json(getLeadnumberResponse_list);
+	// 테스트용 ===== body 데이터로만 업데이트
+	// getLeadnumberResponse_list = req.body;
+	// 테스트용 ===== body 데이터로만 업데이트
 
-	
+	if (getLeadnumberResponse_list.resultCount > 0) {
 
+		for (var resItem of getLeadnumberResponse_list.contentList) {
+			var updateForm = {};
 
-	
+			updateForm.fieldValues = [
+                {
+                    "type": "FieldValue",
+                    // "id": "525",  // CDO LEAD_NUMBER id
+                    "id": "1342",  // TEST CDO LEAD_NUMBER id
+                    "value": resItem.leadSeq
+                }, 
+				{
+                    "type": "FieldValue",
+                    // "id": "526",  // CDO LEAD_CREATE_DATE id
+                    "id": "1343",  // TEST CDO LEAD_CREATE_DATE id
+                    "value": utils.timeConverter("GET_UNIX" , resItem.leadCreateDate )
+                }
+            ];
+
+			b2bgerp_eloqua.data.customObjectData.update(parent_id, resItem.customObjectId, updateForm).then((result) => {
+		
+				if (result.data && result.data.total > 0) {
+					console.log('update 완료 : ' + result.data);
+				}
+
+			}).catch((err) => {
+				console.log(err.message);
+			});
+		}
+
+		res.json('업데이트 요청 완료');
+
+	} else {
+		console.log(getLeadnumberResponse_list.message);
+		res.json('데이터 조회결과 0건');
+	}
 }
-
 
 async function getLeadnumberData(parent_id) {
 	var yesterday_Object = utils.yesterday_getDetailDateTime();
