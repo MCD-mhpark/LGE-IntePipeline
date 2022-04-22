@@ -206,6 +206,23 @@ function schedule_Request_PIPELINE_KR(){
 	});
 }
 
+// Leadnumber update 테스트용 스케쥴러
+function schedule_Request_PIPELINE_LEADUPDATE(){
+	let uniqe_jobs_name = "PIPELINE_KR" +  moment().format('YYYYMMDD');
+	let second = "0";
+	let minutes = "20";
+	let hours = "17";
+	let dayofmonth = "*";
+	let month = "*";
+	let weekindex = "*";
+	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+
+	//test data
+	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
+		await b2bgerp_global_data_contacts.pipe_global_lead_update();
+	});
+}
+
 // Pipe Test를 위하여 임시 주석처리 추후 스케줄러를 위해 등록 필요
 if(__dirname == "/home/opc/LGE/integrated_pipeline"){
 	console.log("INTEGRATED PIPELINE_GLOBAL SCHEDULER REG");
