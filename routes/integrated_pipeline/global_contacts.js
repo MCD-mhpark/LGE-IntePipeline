@@ -1226,7 +1226,7 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 
 	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
 
-	let status = "fullstg"
+	let status = "stg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -1378,8 +1378,8 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 
 					// Pipe Test 를 위해 주석처리
 					// var bant_result_list = await setBant_Update(business_name, bant_update_list);
-					req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
-					req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
+					// req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
+					// req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
 				}
 
 				// res.json(body);

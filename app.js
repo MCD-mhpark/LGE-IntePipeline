@@ -172,7 +172,7 @@ app.use(function(err, req, res, next) {
 function schedule_Request_PIPELINE_GLOBAL(){
 	let uniqe_jobs_name = "PIPELINE_GLOBAL" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "4";
+	let minutes = "0";
 	let hours = "12";
 	let dayofmonth = "*";
 	let month = "*";
@@ -193,7 +193,7 @@ function schedule_Request_PIPELINE_GLOBAL(){
 function schedule_Request_PIPELINE_KR(){
 	let uniqe_jobs_name = "PIPELINE_KR" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "*/5";
+	let minutes = "*/10";
 	let hours = "*";
 	let dayofmonth = "*";
 	let month = "*";
