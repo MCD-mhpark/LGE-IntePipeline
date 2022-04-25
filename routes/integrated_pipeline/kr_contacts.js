@@ -126,7 +126,7 @@ pipe_kr_bant_send = async function (req, res){
 					// console.log(trans_up_list[0].fieldValues);
 					// await sendTransfer_Update(parentId , trans_up_list);
 					
-					res.json(body);
+					// res.json(body);
 	            }   
 	        }
 	    });
@@ -138,7 +138,6 @@ pipe_kr_bant_send = async function (req, res){
 		}
 		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분")  ,"KR" ,  "PIPELINE_KR" , noneData );
 		
-		res.json(noneData);
 	}
 
 	
