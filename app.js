@@ -210,8 +210,8 @@ function schedule_Request_PIPELINE_KR(){
 function schedule_Request_PIPELINE_LEADUPDATE(){
 	let uniqe_jobs_name = "PIPELINE_LEADUPDATE" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "30";
-	let hours = "17";
+	let minutes = "10";
+	let hours = "12";
 	let dayofmonth = "*";
 	let month = "*";
 	let weekindex = "*";

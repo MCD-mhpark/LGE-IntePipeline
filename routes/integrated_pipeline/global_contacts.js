@@ -1818,7 +1818,7 @@ function req_res_logs(filename, business_name , folderName, data) {
 
 pipe_global_lead_update = async function (req, res, next) {
 
-	let status = "dev"
+	let status = "stg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -1866,11 +1866,12 @@ pipe_global_lead_update = async function (req, res, next) {
 		'Authorization' : token_type + " " + token
 	}
 
+	// 당일 전송된 MQL에 대하여 LeadNumber 업데이트
 	var yesterday_Object = utils.yesterday_getDateTime();
-	console.log(yesterday_Object.start)
+	console.log(yesterday_Object.end)
 	let options = {
-		url: send_url + "?convertedDate=" + yesterday_Object.start,
-		// url: send_url + "?convertedDate=2022-04-05" ,
+		url: send_url + "?convertedDate=" + yesterday_Object.end,
+		// url: send_url + "?convertedDate=2022-04-26" ,
 		method: "get",
 		headers: headers,
 		// body: { ContentList: update_data },
