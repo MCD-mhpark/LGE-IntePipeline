@@ -24,7 +24,7 @@ pipe_kr_bant_send = async function (req, res){
 	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
 	// var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
 
-	let status = "stg"
+	let status = "dev"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 

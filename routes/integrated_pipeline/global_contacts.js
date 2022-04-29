@@ -1226,7 +1226,7 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 
 	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
 
-	let status = "stg"
+	let status = "dev"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -1818,7 +1818,7 @@ function req_res_logs(filename, business_name , folderName, data) {
 
 pipe_global_lead_update = async function (req, res, next) {
 
-	let status = "stg"
+	let status = "dev"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -1919,11 +1919,11 @@ pipe_global_lead_update = async function (req, res, next) {
 			});
 		}
 
-		res.json('업데이트 요청 완료');
+		console.log('업데이트 요청 완료');
 
 	} else {
 		console.log(getLeadnumberResponse_list.message);
-		res.json('데이터 조회결과 0건');
+		console.log('데이터 조회결과 0건');
 	}
 }
 
