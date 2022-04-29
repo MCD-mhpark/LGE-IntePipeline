@@ -210,7 +210,7 @@ function schedule_Request_PIPELINE_KR(){
 function schedule_Request_PIPELINE_LEADUPDATE(){
 	let uniqe_jobs_name = "PIPELINE_LEADUPDATE" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "12";
+	let minutes = "00";
 	let hours = "12";
 	let dayofmonth = "*";
 	let month = "*";
@@ -229,6 +229,8 @@ if(__dirname == "/home/opc/LGE/integrated_pipeline"){
 	schedule_Request_PIPELINE_GLOBAL();
 	console.log("INTEGRATED PIPELINE_KR SCHEDULER REG");
 	schedule_Request_PIPELINE_KR();
+	console.log("INTEGRATED PIPELINE_LEADUPDATE SCHEDULER REG");
+	schedule_Request_PIPELINE_LEADUPDATE();
 } 
 
 // console.log(b2bgerp_global_data_contacts);
