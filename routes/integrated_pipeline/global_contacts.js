@@ -236,10 +236,11 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 			result_item.entryType = "L"                                                  //default L
 			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
 			result_item.contactPoint =
-				GetCustomFiledValue(FieldValues_data, 100172) + "/" +
+				GetCustomFiledValue(FieldValues_data, 100172);
+				// + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
-				GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
-				GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
+				// GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
+				// GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
 			result_item.corporation = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
 			// result_item.OWNER = "";                                                       //(확인필요);
 
@@ -830,10 +831,11 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			result_item.entryType = "L"                                                  //default L
 			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
 			result_item.contactPoint =
-				GetCustomFiledValue(FieldValues_data, 100172) + "/" +
+				GetCustomFiledValue(FieldValues_data, 100172);
+				// + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
-				GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
-				GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
+				// GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
+				// GetDataValue(contacts_data.elements[i].mobilePhone) + "/"               //Contact Point는 Eloqua 필드 중 -> Customer Name/Email/Phone No. 를 연결 시켜 매핑 필요
 			result_item.corporation = "LGE" + GetCustomFiledValue(FieldValues_data, 100196);  //법인정보 "LGE" + {{Subsidiary}}
 			// result_item.OWNER = "";                                                       //(확인필요);
 
