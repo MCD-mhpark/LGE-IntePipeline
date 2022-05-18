@@ -23,7 +23,7 @@ router.get('/inte_pipeline_global', async function (req, res, next) {
 
 
 router.post('/inte_pipeline_lead_update', async function (req, res, next) {
-	await pipe_global_lead_update(req, res, next);
+	await pipe_global_lead_update(req, res, next); 
 });
 
 router.post('/tester', async function (req, res, next) {
@@ -36,6 +36,13 @@ router.get('/get_access_token', async function (req, res, next) {
 	console.log(result);
 	res.json(result);
 });
+
+router.post('/contactpointtest', async function (req, res, next) {
+	var contact_list = req.body;
+	var request_data = await Convert_B2BGERP_GLOBAL_DATA(contact_list, "Solution");
+	let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
+	res.json(mql_customobject_list);
+})
 
 async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 
@@ -178,6 +185,8 @@ function B2B_GERP_GLOBAL_ENTITY() {
 	this.lastUpdateDate	= "";
 	this.customObjectId	= "";		// Eloqua 내 CustomObject 에 전송 MQL 을 저장한 후 leadnumber update 를 하기 위한 customobject id 값
 	//Building Type을 Vertical Type으로 변경하고 전사 Vertical 기준에 맞추어 매핑 필요 - LG.com내에도 항목 수정 필요하니 요청 필요함 호텔정보 
+	this.firstName = "";
+	this.lastName = "";
 }
 
 
@@ -295,6 +304,11 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 			result_item.transferDate = moment().format('YYYY-MM-DD hh:mm:ss');    //어떤 날짜 정보인지 확인 필요
 			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
 			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
+
+			result_item.firstName = GetDataValue(contacts_data.elements[i].firstName) == "" ? "None" : GetDataValue(contacts_data.elements[i].firstName);
+			result_item.firstName = result_item.firstName.length > 40 ? result_item.firstName.substring(0, 40) : result_item.firstName;
+			result_item.lastName = GetDataValue(contacts_data.elements[i].lastName) == "" ? "None" : GetDataValue(contacts_data.elements[i].lastName);
+			result_item.lastName = result_item.lastName.length > 80 ? result_item.lastName.substring(0, 80) : result_item.lastName;
 
 			console.log(result_item.corporation);
 
@@ -523,6 +537,20 @@ function CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
 		});
 
+		/*		FIXME: 테스트 종료 후 본 환경 배포시 수정
+		id값 확인 후 수정할 것
+
+		mql_data.fieldValues.push({
+			"id": "1654",
+			"value": item.firstName
+		});
+
+		mql_data.fieldValues.push({
+			"id": "1655",
+			"value": item.lastName
+		});
+		*/
+		
 		mql_list.push(mql_data);
 	}
 
@@ -736,6 +764,16 @@ function TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
 		});
 
+		mql_data.fieldValues.push({
+			"id": "1654",
+			"value": item.firstName
+		});
+
+		mql_data.fieldValues.push({
+			"id": "1655",
+			"value": item.lastName
+		});
+
 		mql_list.push(mql_data);
 	}
 
@@ -891,7 +929,10 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
 			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
 
-
+			result_item.firstName = contacts_data.elements[i].firstName == "" ? "None" : contacts_data.elements[i].firstName;
+			result_item.firstName = result_item.firstName.length > 40 ? result_item.firstName.substring(0, 40) : result_item.firstName;
+			result_item.lastName = contacts_data.elements[i].lastName == "" ? "None" : contacts_data.elements[i].lastName;
+			result_item.lastName = result_item.lastName.length > 80 ? result_item.lastName.substring(0, 80) : result_item.lastName;
 
 			let notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
 			// let notBant_emailType_List = ["@goldenplanet.co.kr"];
@@ -1123,6 +1164,19 @@ function CONVERT_B2BGERP_GLOBAL_SUBSIDIARY_MISSING(request_data) {
 			"value": utils.timeConverter("GET_UNIX", item.lastUpdateDate)
 		});
 
+		/*		FIXME: 테스트 종료 후 본 환경 배포시 수정
+		id도 수정할 것 
+
+		mql_data.fieldValues.push({
+			"id": "1654",
+			"value": item.firstName
+		});
+
+		mql_data.fieldValues.push({
+			"id": "1655",
+			"value": item.lastName
+		});
+		 */
 		mql_list.push(mql_data);
 	}
 
