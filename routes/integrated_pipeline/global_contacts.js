@@ -39,10 +39,10 @@ router.get('/get_access_token', async function (req, res, next) {
 
 router.post('/contactpointtest', async function (req, res, next) {
 	var contact_list = req.body;
-	var request_data = await Convert_B2BGERP_GLOBAL_DATA(contact_list, "Solution");
-	let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
-	res.json(mql_customobject_list);
-})
+	var request_data = await Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contact_list, "Solution");
+	// let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
+	res.json(request_data);
+});
 
 async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 
@@ -244,8 +244,7 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 			result_item.entryType = "L"                                                  //default L
 			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
-			result_item.contactPoint =
-				GetCustomFiledValue(FieldValues_data, 100172);
+			result_item.contactPoint = GetCustomFiledValue(FieldValues_data, 100172) == "" ? "None" : GetCustomFiledValue(FieldValues_data, 100172);
 				// + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
 				// GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
@@ -868,8 +867,7 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 
 			result_item.entryType = "L"                                                  //default L
 			result_item.account = GetDataValue(contacts_data.elements[i].accountName) == "" ? "N/A" : GetDataValue(contacts_data.elements[i].accountName);    //ACCOUNT ( 회사 )  // Company Name
-			result_item.contactPoint =
-				GetCustomFiledValue(FieldValues_data, 100172);
+			result_item.contactPoint = GetCustomFiledValue(FieldValues_data, 100172) == "" ? "None" : GetCustomFiledValue(FieldValues_data, 100172);
 				// + "/" +
 				//GetDataValue(contacts_data.elements[i].firstName) + " " + GetDataValue(contacts_data.elements[i].lastName) + "/" +
 				// GetDataValue(contacts_data.elements[i].emailAddress) + "/" +
