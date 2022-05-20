@@ -304,7 +304,7 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
 			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
 
-			result_item.firstName = GetDataValue(contacts_data.elements[i].firstName) == "" ? "None" : GetDataValue(contacts_data.elements[i].firstName);
+			result_item.firstName = GetDataValue(contacts_data.elements[i].firstName);
 			result_item.firstName = result_item.firstName.length > 40 ? result_item.firstName.substring(0, 40) : result_item.firstName;
 			result_item.lastName = GetDataValue(contacts_data.elements[i].lastName) == "" ? "None" : GetDataValue(contacts_data.elements[i].lastName);
 			result_item.lastName = result_item.lastName.length > 80 ? result_item.lastName.substring(0, 80) : result_item.lastName;
@@ -927,9 +927,9 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			result_item.transferFlag = "Y";	 									//TRANSFER_FLAG N , Y 값의 용도 확인 필요
 			result_item.lastUpdateDate = utils.timeConverter("GET_DATE", contacts_data.elements[i].updatedAt);
 
-			result_item.firstName = contacts_data.elements[i].firstName == "" ? "None" : contacts_data.elements[i].firstName;
+			result_item.firstName = GetDataValue(contacts_data.elements[i].firstName);
 			result_item.firstName = result_item.firstName.length > 40 ? result_item.firstName.substring(0, 40) : result_item.firstName;
-			result_item.lastName = contacts_data.elements[i].lastName == "" ? "None" : contacts_data.elements[i].lastName;
+			result_item.lastName = GetDataValue(contacts_data.elements[i].lastName) == "" ? "None" : GetDataValue(contacts_data.elements[i].lastName);
 			result_item.lastName = result_item.lastName.length > 80 ? result_item.lastName.substring(0, 80) : result_item.lastName;
 
 			let notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];

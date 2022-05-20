@@ -208,6 +208,8 @@ function B2B_GERP_KR_ENTITY() {
 	this.emailAddr = ""; //전자우편주소
 
 	this.contactName = ""; //담당자명
+	this.lastName = "";  //담당자명 이름
+	this.firstName = ""; //담당자명 성
 	this.contactPhoneNo = ""; //담당자 전화번호
 	this.contactCellularNo = ""; //담당자 이동전화번호
 	this.contactEmailAddr = ""; //담당자 전자우편주소
@@ -267,7 +269,9 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.emailAddr = GetCustomObjectValue(1358, cod_elements[i], "N"); //전자우편주소
 			// result_item.CONTACT_NAME = GetCustomObjectValue(277, cod_elements[i], "N"); //담당자명
 
-			result_item.contactName = GetCustomObjectValue(1389, cod_elements[i], "N") + " " + GetCustomObjectValue(1388, cod_elements[i], "N"); //담당자명
+			result_item.firstName = GetCustomObjectValue(1388, cod_elements[i], "N"); //담당자명 이름
+			result_item.lastName = GetCustomObjectValue(1389, cod_elements[i], "N") == "" ? "None" : GetCustomObjectValue(1389, cod_elements[i], "N"); //담당자명 성
+			result_item.contactName = result_item.lastName + " " + result_item.firstName; //담당자명
 			result_item.contactPhoneNo = GetCustomObjectValue(1360, cod_elements[i], "N"); //담당자 전화번호
 			result_item.contactCellularNo = GetCustomObjectValue(1361, cod_elements[i], "N"); //담당자 이동전화번호
 			result_item.contactEmailAddr = GetCustomObjectValue(1362, cod_elements[i], "N"); //담당자 전자우편주소
@@ -337,7 +341,9 @@ function Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.emailAddr = GetCustomObjectValue(276, cod_elements[i], "N"); //전자우편주소
 			// result_item.CONTACT_NAME = GetCustomObjectValue(277, cod_elements[i], "N"); //담당자명
 
-			result_item.contactName = GetCustomObjectValue(396, cod_elements[i], "N") + " " + GetCustomObjectValue(395, cod_elements[i], "N"); //담당자명
+			result_item.firstName = GetCustomObjectValue(395, cod_elements[i], "N"); //담당자명 이름
+			result_item.lastName = GetCustomObjectValue(396, cod_elements[i], "N") == "" ? "None" : GetCustomObjectValue(396, cod_elements[i], "N"); //담당자명 성
+			result_item.contactName = result_item.lastName + " " + result_item.firstName; //담당자명
 			result_item.contactPhoneNo = GetCustomObjectValue(278, cod_elements[i], "N"); //담당자 전화번호
 			result_item.contactCellularNo = GetCustomObjectValue(279, cod_elements[i], "N"); //담당자 이동전화번호
 			result_item.contactEmailAddr = GetCustomObjectValue(280, cod_elements[i], "N"); //담당자 전자우편주소
