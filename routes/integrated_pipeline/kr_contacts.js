@@ -10,6 +10,11 @@ router.get('/inte_pipeline_kr', async function (req, res, next) {
 	await pipe_kr_bant_send(req , res);
 });
 
+router.post('/namefieldtest', async function (req, res, next) {
+	var COD_list = await GetKR_CustomDataSearch(149 ,"get");
+	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
+	res.json(result_list);
+})
 
 pipe_kr_bant_send = async function (req, res){
 	console.log("Pipeline pipe_kr_bant_send");
@@ -271,7 +276,7 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 
 			result_item.firstName = GetCustomObjectValue(1388, cod_elements[i], "N"); //담당자명 이름
 			result_item.lastName = GetCustomObjectValue(1389, cod_elements[i], "N") == "" ? "None" : GetCustomObjectValue(1389, cod_elements[i], "N"); //담당자명 성
-			result_item.contactName = result_item.lastName + " " + result_item.firstName; //담당자명
+			result_item.contactName = (result_item.lastName + " " + result_item.firstName).trim(); //담당자명
 			result_item.contactPhoneNo = GetCustomObjectValue(1360, cod_elements[i], "N"); //담당자 전화번호
 			result_item.contactCellularNo = GetCustomObjectValue(1361, cod_elements[i], "N"); //담당자 이동전화번호
 			result_item.contactEmailAddr = GetCustomObjectValue(1362, cod_elements[i], "N"); //담당자 전자우편주소
@@ -343,7 +348,7 @@ function Convert_B2BGERP_KR_DATA(_cod_data) {
 
 			result_item.firstName = GetCustomObjectValue(395, cod_elements[i], "N"); //담당자명 이름
 			result_item.lastName = GetCustomObjectValue(396, cod_elements[i], "N") == "" ? "None" : GetCustomObjectValue(396, cod_elements[i], "N"); //담당자명 성
-			result_item.contactName = result_item.lastName + " " + result_item.firstName; //담당자명
+			result_item.contactName = (result_item.lastName + " " + result_item.firstName).trim(); //담당자명
 			result_item.contactPhoneNo = GetCustomObjectValue(278, cod_elements[i], "N"); //담당자 전화번호
 			result_item.contactCellularNo = GetCustomObjectValue(279, cod_elements[i], "N"); //담당자 이동전화번호
 			result_item.contactEmailAddr = GetCustomObjectValue(280, cod_elements[i], "N"); //담당자 전자우편주소
