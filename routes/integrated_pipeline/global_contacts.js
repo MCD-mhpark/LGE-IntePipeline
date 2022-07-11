@@ -318,7 +318,18 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 			// 	return result_item.ATTRIBUTE_4.indexOf(sentence) > -1 ? result_item.ATTRIBUTE_4 : null;
 			// });
 
-			if (result_item.corporation != "" && result_item.corporation != "LGE" && notBant_email_list.length < 1)
+			let subsidiaryOption = ['LGEAP', 'LGESL', 'LGETH', 'LGECH', 'LGEHK', 'LGEIL', 'LGEIN', 'LGEML', 'LGEPH', 'LGETT', 'LGEVH', 'LGEJP', 'LGEKR', 'LGERA', 'LGEAK', 'LGEUR', 'LGEMK',
+    		'LGEAG', 'LGEBN', 'LGEHS', 'LGECZ', 'LGEDG', 'LGEPL', 'LGEFS', 'LGEUK', 'LGEIS', 'LGEPT', 'LGERO', 'LGEES', 'LGEPS', 'LGEAR', 'LGECL', 'LGESP', 'LGECB', 'LGEMS', 'LGEPR', 'LGEGF',
+    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESB', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
+			let subsidiaryCheck;
+			if(subsidiaryOption.includes(result_item.corporation)){
+				subsidiaryCheck = true;
+			}else{
+				subsidiaryCheck = false;
+			}
+
+		
+			if (result_item.corporation != "" && result_item.corporation != "LGE" && subsidiaryCheck == true && notBant_email_list.length < 1)
 				result_data.push(result_item);
 		}
 		catch (e) {
@@ -944,7 +955,17 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			// }
 			// console.log(notBant_email_list.length);
 
-			if (result_item.corporation == "" || result_item.corporation == "LGE"   )
+			let subsidiaryOption = ['LGEAP', 'LGESL', 'LGETH', 'LGECH', 'LGEHK', 'LGEIL', 'LGEIN', 'LGEML', 'LGEPH', 'LGETT', 'LGEVH', 'LGEJP', 'LGEKR', 'LGERA', 'LGEAK', 'LGEUR', 'LGEMK',
+    		'LGEAG', 'LGEBN', 'LGEHS', 'LGECZ', 'LGEDG', 'LGEPL', 'LGEFS', 'LGEUK', 'LGEIS', 'LGEPT', 'LGERO', 'LGEES', 'LGEPS', 'LGEAR', 'LGECL', 'LGESP', 'LGECB', 'LGEMS', 'LGEPR', 'LGEGF',
+    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESB', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
+			let subsidiaryCheck;
+			if(subsidiaryOption.includes(result_item.corporation)){
+				subsidiaryCheck = true;
+			}else{
+				subsidiaryCheck = false;
+			}
+
+			if (result_item.corporation == "" || result_item.corporation == "LGE"  || subsidiaryCheck == false)
 				result_data.push(result_item);		
 		}
 		catch (e) {
@@ -1272,6 +1293,24 @@ async function setBant_Update(bant_name, contact_list) {
 }
 
 
+// router.post('/testMissing', async function (req, res, next) {
+
+// 	// let contact_list = await get_b2bgerp_global_bant_data("TEST", "2022-07-03", "2022-07-03");
+
+// 	var business_name = "TEST"
+// 	var contact_list = req.body;
+
+// 	var request_data = await Convert_B2BGERP_GLOBAL_DATA(contact_list, business_name);
+// 	//let temp_nosub_data = await Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contact_list , business_name)
+
+// 	let mql_customobject_list = await TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data);
+// 	//let update_mql_data = await mqldata_to_eloqua_send( 146 , mql_customobject_list);
+// 	let update_data = await mqldata_push_customobjectid(request_data, mql_customobject_list);
+
+// 	return res.json(update_data);
+// })
+
+
 //# region Bant 조건 사업부별 contact 데이터 전송을 하는 함수
 pipe_global_bant_send = async function (business_name, state_date, end_date , req, res) {
 	console.log("pipe_global_bant_send function BS NAME : " + business_name);
@@ -1280,7 +1319,7 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 
 	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
 
-	let status = "stg"
+	let status = "fullstg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -1872,7 +1911,7 @@ function req_res_logs(filename, business_name , folderName, data) {
 
 pipe_global_lead_update = async function (req, res, next) {
 
-	let status = "stg"
+	let status = "fullstg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
