@@ -129,7 +129,7 @@ async function get_b2bgerp_global_bant_data(_business_name, start_date, end_date
 	queryString['depth'] = "complete";
 	//   queryString['count'] = 1;
 
-	await b2bgerp_eloqua.data.contacts.get(queryString).then((result) => {
+	await lge_eloqua.data.contacts.get(queryString).then((result) => {
 		console.log("business_name : " + business_name + " result data 건수 : " + result.data.total);
 		// console.log(result.data);
 		if (result.data.total && result.data.total > 0) {
@@ -797,7 +797,7 @@ async function mqldata_to_eloqua_send( parent_id , convert_mql_data) {
 	console.log(parent_id);
 	console.log(convert_mql_data);
 	for (const mqldata of convert_mql_data) {
-		await b2bkr_eloqua.data.customObjects.data.create(parent_id, mqldata).then((result) => {
+		await lge_eloqua.data.customObjects.data.create(parent_id, mqldata).then((result) => {
 			
 			return_list.push(result.data);
 		}).catch((err) => {
@@ -1269,7 +1269,7 @@ async function setBant_Update(bant_name, contact_list) {
 		}
 
 
-		await b2bgerp_eloqua.data.contacts.update(contact_list[i].id, contact_list[i]).then((result) => {
+		await lge_eloqua.data.contacts.update(contact_list[i].id, contact_list[i]).then((result) => {
 
 			// console.log(result.data);
 
@@ -2001,7 +2001,7 @@ pipe_global_lead_update = async function (req, res, next) {
                 }
             ];
 
-			b2bgerp_eloqua.data.customObjectData.update(parent_id, resItem.customObjectId, updateForm).then((result) => {
+			lge_eloqua.data.customObjectData.update(parent_id, resItem.customObjectId, updateForm).then((result) => {
 		
 				if (result.data && result.data.total > 0) {
 					console.log('update 완료 : ' + result.data);
@@ -2036,8 +2036,8 @@ async function getLeadnumberData(parent_id) {
 	}
 	let return_data ;
 	console.log(1234);
-	// console.log(b2bgerp_eloqua.assets.customObjects);
-	await b2bkr_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
+	// console.log(lge_eloqua.assets.customObjects);
+	await lge_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
 		// console.log(result.data);
 		return_data = result.data;
 	}).catch((err) => {

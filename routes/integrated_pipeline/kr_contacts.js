@@ -181,7 +181,7 @@ async function GetKR_CustomDataSearch(_parentId , type) {
 
 	console.log(_parentId);
 	console.log(queryString);
-	await b2bkr_eloqua.data.customObjects.data.get(_parentId, queryString).then((result) => {
+	await lge_eloqua.data.customObjects.data.get(_parentId, queryString).then((result) => {
 		if (result.data && result.data.total > 0) {
 			return_data = result.data;
 		}
@@ -426,7 +426,7 @@ async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 async function sendTransfer_Update( parentId , KR_DATA_LIST){
 
 	for(let item of KR_DATA_LIST){
-		await b2bkr_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
+		await lge_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
 			// console.log(result);
 			return_data = result;
 		}).catch((err) => {

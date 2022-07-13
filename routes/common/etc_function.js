@@ -7,8 +7,8 @@ router.get('/contacts_fields', function (req, res, next) {
 		// search : "?isStandard=false"
 	}
 	console.log(1234);
-	console.log(b2bgerp_eloqua.assets.contacts);
-	b2bgerp_eloqua.assets.contacts.fields.get(queryString).then((result) => {
+	console.log(lge_eloqua.assets.contacts);
+	lge_eloqua.assets.contacts.fields.get(queryString).then((result) => {
 		console.log(result.data);
 		res.json(result.data);
 	}).catch((err) => {
@@ -24,8 +24,8 @@ router.get('/customobject_fields', function (req, res, next) {
 	}
 	let customObject_id = req.query.cid;
 	console.log(1234);
-	// console.log(b2bgerp_eloqua.assets.customObjects);
-	b2bkr_eloqua.assets.customObjects.getOne(customObject_id , queryString).then((result) => {
+	// console.log(lge_eloqua.assets.customObjects);
+	lge_eloqua.assets.customObjects.getOne(customObject_id , queryString).then((result) => {
 		// console.log(result.data);
 		res.json(result.data);
 	}).catch((err) => {
@@ -47,7 +47,7 @@ router.get('/activities_log/:id', function (req, res, next) {
 	let id = req.params.id;
 	console.log("activity logs : " +  req.params.id);
 
-	old_eloqua.data.activities.get(id , queryString).then((result) => {
+	lge_eloqua.data.activities.get(id , queryString).then((result) => {
 		console.log(result.data);
 		res.json(result.data);
 	}).catch((err) => {
@@ -63,7 +63,7 @@ router.get('/optionlist_search', function (req, res, next) {
 
 
 	
-	b2bgerp_eloqua.assets.optionLists.getOne(27 , queryString).then((result) => {
+	lge_eloqua.assets.optionLists.getOne(27 , queryString).then((result) => {
 		console.log(result.data);
 		res.json(result.data);
 	}).catch((err) => {
@@ -79,7 +79,7 @@ router.get('/optionlist_search', function (req, res, next) {
 
 // 	console.log();
 	
-// 	b2bgerp_eloqua.assets.optionLists.get(queryString).then((result) => {
+// 	lge_eloqua.assets.optionLists.get(queryString).then((result) => {
 // 		console.log(result.data);
 // 		res.json(result.data);
 // 	}).catch((err) => {
@@ -100,8 +100,8 @@ router.post('/customobjectData_search', function (req, res, next) {
 	}
 
 	console.log(1234);
-	// console.log(b2bgerp_eloqua.assets.customObjects);
-	b2bkr_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
+	// console.log(lge_eloqua.assets.customObjects);
+	lge_eloqua.data.customObjects.data.get( parent_id , queryString).then((result) => {
 		// console.log(result.data);
 		res.json(result.data);
 	}).catch((err) => {
