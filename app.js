@@ -13,9 +13,9 @@ require('console-stamp')(console, {
     }
 });
 var os = require('os');
+
+// 실배포시 주석 해제=========================
 const apiInfo = require('./config/apiInfo.json');
-
-
 
 const schedule = require('node-schedule-tz');
 // var engine = require('ejs-locals');
@@ -111,14 +111,51 @@ app.use('/etc_function/', etc_function);
 
 
 //============TEST용 Basic인증
+
+// 회사명 : LGElectronicsd
+// 명함앱 : Lg_api.Card - 8001
+// B2B GERP : Lg_api.B2b_global - 8002
+// B2B KR : Lg_api.B2b_kr- 8003
+// 고객통합 : Lg_api.Integrated- 8004
+// IAM : Lg_api.Iam- 8005
+// 전부 비밀번호 :  QWer1234!@
+
+// var b2bgerp_eloqua_config = {
+// 	sitename: 'LGElectronics',
+// 	username: 'Lg_api.Card',
+// 	password: 'QWer1234!@'
+// };
 // var b2bgerp_eloqua_config = {
 // 	sitename: 'LGElectronics',
 // 	username: 'Lg_api.B2b_global',
 // 	password: 'QWert1234!@'
 // };
+// var b2bgerp_eloqua_config = {
+// 	sitename: 'LGElectronics',
+// 	username: 'Lg_api.B2b_kr',
+// 	password: 'QWer1234!@'
+// };
+// var b2bgerp_eloqua_config = {
+// 	sitename: 'LGElectronics',
+// 	username: 'Lg_api.Integrated',
+// 	password: 'QWer1234!@'
+// };
+// var b2bgerp_eloqua_config = {
+// 	sitename: 'LGElectronics',
+// 	username: 'Lg_api.Iam',
+// 	password: 'QWer1234!@'
+// };
 
-// global.lge_eloqua = new EloquaApi(b2bgerp_eloqua_config);
+// var b2bgerp_eloqua_config = {
+// 	sitename: 'LGElectronics',
+// 	username: 'Lg_api.Integrated',
+// 	password: 'QWer1234!@', 
+// 	restVersion : '1.0'
+// }
+
+//global.lge_eloqua = new EloquaApi(b2bgerp_eloqua_config);
 //============TEST용 Basic인증
+
 
 var lge_eloqua_config = apiInfo;
 global.lge_eloqua = {};

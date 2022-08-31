@@ -24,7 +24,7 @@ router.get('/customobject_fields', function (req, res, next) {
 	}
 	let customObject_id = req.query.cid;
 	console.log(1234);
-	// console.log(lge_eloqua.assets.customObjects);
+	 console.log(lge_eloqua.assets.customObjects);
 	lge_eloqua.assets.customObjects.getOne(customObject_id , queryString).then((result) => {
 		// console.log(result.data);
 		res.json(result.data);

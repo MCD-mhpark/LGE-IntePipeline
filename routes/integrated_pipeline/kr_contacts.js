@@ -20,15 +20,14 @@ pipe_kr_bant_send = async function (req, res){
 	console.log("Pipeline pipe_kr_bant_send");
 	var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
 
-	// var parentId = 149;  // 한국영업본부 온라인 견적문의 테스트 커스텀 오브젝트 ID
+	//var parentId = 149;  // 한국영업본부 온라인 견적문의 테스트 커스텀 오브젝트 ID
 
 	var COD_list = await GetKR_CustomDataSearch(parentId ,"get");
 	
 	// console.log(COD_list);
 	//Pipe Line 테스트를 위해 주석 처리
 	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
-	// var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
-
+	//var B2B_GERP_KR_DATA = await TEST_Convert_B2BGERP_KR_DATA(COD_list);
 	let status = "fullstg"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
@@ -233,12 +232,22 @@ function B2B_GERP_KR_ENTITY() {
 	this.unifyId = ""; //통합회원 유니크 아이디
 	this.sector = ""; //업종
 	this.dtlSector = ""; //상세업종
+	
+	this.privacyPolicyYn = "";
+	this.privacyPolicyDate = "";
+	this.thirdPartyAgreementYn = "";
+	this.thirdPartyAgreementDate = "";
+	this.transferThirdCountriesYn = "";
+	this.transferThirdCountriesDate = "";
+	this.marketingAgreementYn = "";
+	this.marketingAgreementDate = "";
+	this.leadSource = "";
 
 	// this.ATTRIBUTE_10 = "";
 	// this.ATTRIBUTE_11 = "";
 	// this.ATTRIBUTE_12 = "";
 
-	this.platformActivity = ""; //Platform & Activity
+	//this.platformActivity = ""; //Platform & Activity
 	this.leadName = "" ; 
 
 }
@@ -296,11 +305,29 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.sector = GetCustomObjectValue(1376, cod_elements[i], "N"); //업종
 			result_item.dtlSector = GetCustomObjectValue(1377, cod_elements[i], "N"); //상세업종
 
+			result_item.privacyPolicyYn = GetCustomObjectValue(1371, cod_elements[i], "N") == "Yes" ? "Y" : "N"; //개인정보 수집 및 이용동의 여부
+			let Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomObjectValue(1380, cod_elements[i], "N"));
+			result_item.privacyPolicyDate = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //개인정보 수집 및 이용동의 일자
+
+			result_item.thirdPartyAgreementYn = GetCustomObjectValue(1372, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //개인정보 위탁 처리 동의 여부
+			let Third_Party_AgreementDate = utils.timeConverter("GET_DATE", GetCustomObjectValue(1381, cod_elements[i], "N"));
+			result_item.thirdPartyAgreementDate = Third_Party_AgreementDate == null ? "" : Third_Party_AgreementDate; //개인정보 위탁 처리 동의 날짜
+
+			result_item.transferThirdCountriesYn = GetCustomObjectValue(1373, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //개인정보 국외 이전 동의 여부
+			let Transfer_Third_CountriesDate = utils.timeConverter("GET_DATE", GetCustomObjectValue(1382, cod_elements[i], "N"));
+			result_item.transferThirdCountriesDate = Transfer_Third_CountriesDate == null ? "" : Transfer_Third_CountriesDate; //개인정보 국외 이전 동의 일자
+
+			result_item.marketingAgreementYn = GetCustomObjectValue(1374, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //LG전자 마케팅 정보 수신 동의 여부
+			let Marketing_AgreementYn = utils.timeConverter("GET_DATE", GetCustomObjectValue(1383, cod_elements[i], "N"));
+			result_item.marketingAgreementDate = Marketing_AgreementYn == null ? "" : Marketing_AgreementYn; //LG전자 마케팅 정보 수신 동의 일자
+
+			result_item.leadSource = GetCustomObjectValue(1909, cod_elements[i], "N"); //리드원천
+
 			// result_item.ATTRIBUTE_10 = "";
 			// result_item.ATTRIBUTE_11 = "";
 			// result_item.ATTRIBUTE_12 = "";
 
-			result_item.platformActivity = GetCustomObjectValue(1385, cod_elements[i], "N"); //Platform & Activity
+			//result_item.platformActivity = GetCustomObjectValue(1385, cod_elements[i], "N"); //Platform & Activity // SFDC만 리드원천으로 변경
 			result_item.leadName = GetCustomObjectValue(1384, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(1351, cod_elements[i], "N") ; 
 			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명
 
@@ -368,15 +395,31 @@ function Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.sector = GetCustomObjectValue(294, cod_elements[i], "N"); //업종
 			result_item.dtlSector = GetCustomObjectValue(295, cod_elements[i], "N"); //상세업종
 
+			result_item.privacyPolicyYn = GetCustomObjectValue(289, cod_elements[i], "N") == "Yes" ? "Y" : "N"; //개인정보 수집 및 이용동의 여부
+			let Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomObjectValue(298, cod_elements[i], "N"));
+			result_item.privacyPolicyDate = Privacy_Policy_Date == null ? "" : Privacy_Policy_Date; //개인정보 수집 및 이용동의 일자
+
+			result_item.thirdPartyAgreementYn = GetCustomObjectValue(290, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //개인정보 위탁 처리 동의 여부
+			let Third_Party_AgreementDate = utils.timeConverter("GET_DATE", GetCustomObjectValue(299, cod_elements[i], "N"));
+			result_item.thirdPartyAgreementDate = Third_Party_AgreementDate == null ? "" : Third_Party_AgreementDate; //개인정보 위탁 처리 동의 날짜
+
+			result_item.transferThirdCountriesYn = GetCustomObjectValue(291, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //개인정보 국외 이전 동의 여부
+			let Transfer_Third_CountriesDate = utils.timeConverter("GET_DATE", GetCustomObjectValue(300, cod_elements[i], "N"));
+			result_item.transferThirdCountriesDate = Transfer_Third_CountriesDate == null ? "" : Transfer_Third_CountriesDate; //개인정보 국외 이전 동의 일자
+
+			result_item.marketingAgreementYn = GetCustomObjectValue(292, cod_elements[i], "N") == "Yes" ? "Y" : "N";; //LG전자 마케팅 정보 수신 동의 여부
+			let Marketing_AgreementYn = utils.timeConverter("GET_DATE", GetCustomObjectValue(301, cod_elements[i], "N"));
+			result_item.marketingAgreementDate = Marketing_AgreementYn == null ? "" : Marketing_AgreementYn; //LG전자 마케팅 정보 수신 동의 일자
+
+			result_item.leadSource = GetCustomObjectValue(1904, cod_elements[i], "N"); //리드원천
+
 			// result_item.ATTRIBUTE_10 = "";
 			// result_item.ATTRIBUTE_11 = "";
 			// result_item.ATTRIBUTE_12 = "";
 
-			result_item.platformActivity = GetCustomObjectValue(318, cod_elements[i], "N"); //Platform & Activity
+			//result_item.platformActivity = GetCustomObjectValue(318, cod_elements[i], "N"); //Platform & Activity
 			result_item.leadName = GetCustomObjectValue(317, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N") ; 
 			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명
-
-		
 
 			result_data.push(result_item);
 
