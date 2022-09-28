@@ -1379,9 +1379,9 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 	
 	// var parentId = 46;  // B2B GERP GLOBAL CustomObject ID
 
-	var parentId = 146;  // TEST B2B GERP GLOBAL CustomObject ID
+	var parentId = 146;  // SFDC B2B GERP GLOBAL CustomObject ID
 
-	let status = "fullstg"
+	let status = "prd"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -2001,7 +2001,7 @@ function req_res_logs(filename, business_name , folderName, data) {
 
 pipe_global_lead_update = async function (req, res, next) {
 
-	let status = "fullstg"
+	let status = "prd"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
 	let send_url ; 
@@ -2026,7 +2026,7 @@ pipe_global_lead_update = async function (req, res, next) {
 	}
 
 	// const parentId = 46;  // B2B GERP GLOBAL CustomObject ID
-	const parent_id = 146;  // TEST B2B GERP GLOBAL CustomObject ID
+	const parent_id = 146;  // SFDC B2B GERP GLOBAL CustomObject ID
 	
 	console.log("Pipeline pipe_global_lead_update");
 
