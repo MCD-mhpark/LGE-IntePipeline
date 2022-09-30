@@ -1372,7 +1372,6 @@ async function setBant_Update(bant_name, contact_list) {
 // 	return res.json(update_data);
 // })
 
-
 //# region Bant 조건 사업부별 contact 데이터 전송을 하는 함수
 pipe_global_bant_send = async function (business_name, state_date, end_date , req, res) {
 	console.log("pipe_global_bant_send function BS NAME : " + business_name);
@@ -1592,11 +1591,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100206	AS_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100206);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100206));
 					break;
 				case "Vertical_Level_2":
 					//100345	AS_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100345);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100206) ,GetCustomFiledValue(fieldValues, 100345));
 					break;
 				case "Customer Type":
 					//100216	AS_Customer Type
@@ -1646,12 +1645,12 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 
 				case "Vertical_Level_1":
 					//100281	CLS_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100281);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100281));
 					break;
 
 				case "Vertical_Level_2":
 					//100349	CLS_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100349);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100281), GetCustomFiledValue(fieldValues, 100349));
 					break;
 				case "Customer Type":
 					//100280	CLS_Customer Type
@@ -1704,11 +1703,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100287	CM_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100287);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100287));
 					break;
 				case "Vertical_Level_2":
 					//100350	CM_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100350);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100287), GetCustomFiledValue(fieldValues, 100350));
 					break;
 				case "Customer Type":
 					//100286	CM_Customer Type
@@ -1756,11 +1755,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100261	ID_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100261);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100261));
 					break;
 				case "Vertical_Level_2":
 					//100346	ID_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100346);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100261), GetCustomFiledValue(fieldValues, 100346));
 					break;
 				case "Customer Type":
 					//100260	ID_Customer Type
@@ -1808,11 +1807,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100268	IT_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100268);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100268));
 					break;
 				case "Vertical_Level_2":
 					//100347	IT_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100347);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100268), GetCustomFiledValue(fieldValues, 100347));
 					break;
 				case "Customer Type":
 					//100267	IT_Customer Type
@@ -1861,11 +1860,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100275	Solar_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100275);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100275));
 					break;
 				case "Vertical_Level_2":
 					//100348	Solar_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100348);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100275), GetCustomFiledValue(fieldValues, 100348));
 					break;
 				case "Customer Type":
 					//100274	Solar_Customer Type
@@ -1913,11 +1912,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Vertical_Level_1":
 					//100227	Solution_Business Sector(Lv1) // Vertical_Level_1
-					result_data = GetCustomFiledValue(fieldValues, 100227);
+					result_data = checkVerticalType1Code(GetCustomFiledValue(fieldValues, 100227));
 					break;
 				case "Vertical_Level_2":
 					//100351	IT_Business Sector(Lv2) // Vertical_Level_2
-					result_data = GetCustomFiledValue(fieldValues, 100351);
+					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100227), GetCustomFiledValue(fieldValues, 100351));
 					break;
 				case "Customer Type":
 					//100226	Solution_Customer Type
@@ -2228,6 +2227,190 @@ function GetDataValue(contacts_fieldvalue) {
 	}
 }
 
+
+function checkVerticalType1Code(_Business_Sector_Name) {
+	let result = "";
+	let value = ['Retail','Hotel & Accomodation', 'Hospital & Health Care', 'Residential (Home)', 'Corporate / Office', 'Transportation', 'Education', 'Public Facility'
+,'Government Department', 'Factory', 'Power plant / Renewable energy', 'Special Purpose']
+
+	result = value.includes(_Business_Sector_Name) ? _Business_Sector_Name : ""
+	return result;
+}
+
+function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival2_Name) {
+
+	let result = "";
+	switch (checkVerticalType1Code(_Business_Sector_Name)) {
+
+		case "Retail":
+			let Retail_Vertival2 = [
+				'Restaurant,F&B(Food and Beverage)'
+				,'QSR(Quick Service Restaurant)'
+				,'Fashion'
+				,'Pharmacy'
+				,'Bookstore'
+				,'Sports Entertainment'
+				,'Real-Estate Agency'
+				,'Luxury(Watch/Jewelry Shop)'
+				,'Car dealership'
+				,'Electronics & Telco'
+				,'Cosmetics'
+				,'Gas Station'
+				,'Travel Agency'
+				,'CVS (Convenience store)'
+				,'Duty Free Shop'
+				,'Hyper market & grocery'
+				,'Shopping mall'
+				,'Other Stores'
+			]			
+			result = Retail_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Hotel & Accomodation":
+			let Hotel_Vertival2 = [
+				'Hotel'
+				,'Resort'
+				,'Casino Resort'
+				,'Cruise'
+				,'Dormitory'
+				,'Others'
+			]			
+			result = Hotel_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+			
+		case "Hospital & Health Care":
+			let Hospital_Vertival2 = [
+				'General Hospital'
+				,'Hospital'
+				,'Clinic'
+				,'LTC(Long-Term Care)'
+				,'Fitness'
+				,'Others'
+			]			
+			result = Hospital_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Residential (Home)":
+			let Residential_Vertival2 = [
+				'Apartment'
+				,'Officetel'
+				,'Villa / Single-Family Home'
+				,'Townhouse'
+				,'Others'
+			]			
+			result = Residential_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Corporate / Office":
+			let Corporate_Vertival2 = [
+				'Advertising'
+				,'Aerospace'
+				,'Airline'
+				,'Agriculture'
+				,'Banking'
+				,'Broadcasting & Media'
+				,'Construction'
+				,'Consulting'
+				,'Developer/Property'
+				,'Entertainment'
+				,'Energy'
+				,'Engineering'
+				,'Finance'
+				,'Healthcare'
+				,'Holdings'
+				,'Insurance'
+				,'Investment'
+				,'IT/Software'
+				,'Logistics'
+				,'Law Firm'
+				,'Manufacturing'
+				,'Mining'
+				,'Network/Cabling'
+				,'Pharmaceutical'
+				,'Telecommunication'
+				,'Distribution Center'
+				,'Others'
+			]			
+			result = Corporate_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Transportation":
+			let Transportation_Vertival2 = [
+				'Airport / Airfield / Helipad'
+				,'Bus Terminal'
+				,'Railway & Metro Station'
+				,'Sea Passenger Terminal / Port'
+				,'Others'
+
+			]			
+			result = Transportation_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+		case "Education":
+			let Education_Vertival2 = [
+				'K12 Kindergarten & Schools'
+				,'Higher Education (College & University)'
+				,'Institute & Academy'
+				,'Others'
+			]			
+			result = Education_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Public Facility":
+			let Public_Vertival2 = [
+				'Museum / Gallery'
+				,'Exhibition / Convention Center'
+				,'Cinema /Theater'
+				,'Sports'
+				,'Religious Facility'
+				,'Outdoor Advertisement'
+				,'Others'
+			]			
+			result = Public_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Government Department":
+			let Government_Vertival2 = [
+				'General Government Office'
+				,'Military'
+				,'Police / Fire station'
+				,'Welfare facilities'
+				,'Others'
+			]			
+			result = Government_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Factory":
+			let Factory_Vertival2 = [
+				'Manufacturing factory / Plant'
+				,'Chemical factory / Plant'
+				,'Pharmaceutical factory'
+				,'Others'
+			]			
+			result = Factory_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+		case "Power plant / Renewable energy":
+			let Powerplant_Vertival2 = [
+				'Power plant'
+				,'Renewable energy'
+				,'Energy Storage & Saving'
+				,'Others'
+			]			
+			result = Powerplant_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+
+		case "Special Purpose":
+			let Special_Vertival2 = [
+				'Mixed-use (Multi Complex)'
+				,'Botanical Garden / Green House'
+				,'Telecom base station / Data, Call'
+				,'Others'
+			]			
+			result = Special_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
+			break;
+			
+	}
+	return result;
+}
 
 // function GetConvertVerticalType1Code(_Business_Sector_Name) {
 // 	// 코드	값
