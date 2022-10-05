@@ -1476,9 +1476,7 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 			url: send_url,
 			method: "POST",
 			headers: headers,
-			// body: { ContentList: update_data },
-			// pipe test 를 위해 주석 처리
-			body: { ContentList: request_data },
+			body: { ContentList: update_data },
 			json: true
 		};
 
