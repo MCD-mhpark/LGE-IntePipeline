@@ -126,11 +126,10 @@ pipe_kr_bant_send = async function (req, res){
 	            if(B2B_GERP_KR_DATA.length > 0 ) {
 	                // console.log(B2B_GERP_KR_DATA);
 	                //Pipe Line 테스트를 위해 주석 처리
-					// let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
 					// console.log(trans_up_list[0].fieldValues);
-					// await sendTransfer_Update(parentId , trans_up_list);
+					await sendTransfer_Update(parentId , trans_up_list);
 					
-					// res.json(body);
 	            }   
 	        }
 	    });
@@ -445,18 +444,12 @@ async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 
 		for(let i = 0 ; i <  kr_data.fieldValues.length ; i++){
 
-			// Pipe Line 테스트를 위해 주석 처리
-			// if(kr_data.fieldValues[i].id == "483") { kr_data.fieldValues[i].value = trans_check }
+			if(kr_data.fieldValues[i].id == "2011") { kr_data.fieldValues[i].value = trans_check }
 			
 			// if(kr_data.fieldValues[i].id == "301" || kr_data.fieldValues[i].id == "300" || kr_data.fieldValues[i].id == "299" || kr_data.fieldValues[i].id == "298"){ 
 			//  	kr_data.fieldValues[i].value = utils.timeConverter("GET_UNIX" , kr_data.fieldValues[i].value ) 
 			// }
 
-			if(kr_data.fieldValues[i].id == "1390") { kr_data.fieldValues[i].value = trans_check }
-			
-			if(kr_data.fieldValues[i].id == "1383" || kr_data.fieldValues[i].id == "1382" || kr_data.fieldValues[i].id == "1381" || kr_data.fieldValues[i].id == "1380"){ 
-			 	kr_data.fieldValues[i].value = utils.timeConverter("GET_UNIX" , kr_data.fieldValues[i].value ) 
-			}
 		}
 
 		return_list.push(kr_data);
