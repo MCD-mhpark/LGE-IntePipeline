@@ -463,7 +463,7 @@ async function sendTransfer_Update( parentId , KR_DATA_LIST){
 
 	for(let item of KR_DATA_LIST){
 		await lge_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
-			// console.log(result);
+			console.log(result);
 			return_data = result;
 		}).catch((err) => {
 			// console.error(err);
