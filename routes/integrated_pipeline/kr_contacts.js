@@ -124,10 +124,10 @@ pipe_kr_bant_send = async function (req, res){
 			}else if (!error && response.statusCode == 200) {
 	    		req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" ,  "PIPELINE_KR" , body );
 	            if(B2B_GERP_KR_DATA.length > 0 ) {
-	                // console.log(B2B_GERP_KR_DATA);
+	                console.log("첫번쨰 로그로그 >>", B2B_GERP_KR_DATA);
 	                //Pipe Line 테스트를 위해 주석 처리
 					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
-					// console.log(trans_up_list[0].fieldValues);
+					console.log("두번째로그로그 >>" ,trans_up_list[0].fieldValues);
 					await sendTransfer_Update(parentId , trans_up_list);
 					
 	            }   
@@ -463,7 +463,7 @@ async function sendTransfer_Update( parentId , KR_DATA_LIST){
 
 	for(let item of KR_DATA_LIST){
 		await lge_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
-			console.log(result);
+			console.log("result>>>>", result.data);
 			return_data = result;
 		}).catch((err) => {
 			// console.error(err);
