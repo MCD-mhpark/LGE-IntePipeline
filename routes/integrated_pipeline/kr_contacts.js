@@ -100,9 +100,6 @@ pipe_kr_bant_send = async function (req, res){
 
 
         await request_promise.post(options, async function (error, response, body) {
-
-	        // console.log(11);
-	        // console.log(response);
 			
 	        if(error){
 	            console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
@@ -121,16 +118,19 @@ pipe_kr_bant_send = async function (req, res){
 				}
 				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , errorData );
 				req_res_logs("requestObject_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , response );
+
 			}else if (!error && response.statusCode == 200) {
 	    		req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" ,  "PIPELINE_KR" , body );
-	            if(B2B_GERP_KR_DATA.length > 0 ) {
-	                console.log("첫번쨰 로그로그 >>", B2B_GERP_KR_DATA);
-	                //Pipe Line 테스트를 위해 주석 처리
-					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
-					console.log("두번째로그로그 >>" ,trans_up_list[0].fieldValues);
-					await sendTransfer_Update(parentId , trans_up_list);
+	            
+				// if(B2B_GERP_KR_DATA.length > 0 ) {
+	                
+				// 	console.log("첫번쨰 로그로그 >>", B2B_GERP_KR_DATA);
+	            //     //Pipe Line 테스트를 위해 주석 처리
+				// 	let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+				// 	console.log("두번째로그로그 >>" ,trans_up_list[0].fieldValues);
+				// 	await sendTransfer_Update(parentId , trans_up_list);
 					
-	            }   
+	            // }   
 	        }
 	    });
 	}
@@ -344,7 +344,7 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 }
 
 
-function Convert_B2BGERP_KR_DATA(_cod_data) {
+async function Convert_B2BGERP_KR_DATA(_cod_data) {
 	var cod_elements = _cod_data.elements;
 	var result_data = [];
 	

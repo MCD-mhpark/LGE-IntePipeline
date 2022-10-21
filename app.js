@@ -184,7 +184,7 @@ app.get('/oauth', function(req, res, next) {
 function schedule_oAuth_Token_Refresh() {
     let unique_jobs_name = "PIPELINE_OAUTH" +  moment().format('YYYYMMDD_HH');
 	let second = "0";
-    let minutes = "0";
+    let minutes = "50";
 	let hours = "*/6";
 	let dayofmonth = "*";
 	let month = "*";
