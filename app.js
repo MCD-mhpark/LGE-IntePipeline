@@ -219,7 +219,7 @@ app.use(function(err, req, res, next) {
 function schedule_Request_PIPELINE_GLOBAL(){
 	let uniqe_jobs_name = "PIPELINE_GLOBAL" +  moment().format('YYYYMMDD');
 	let second = "0";
-	let minutes = "0";
+	let minutes = "1";
 	let hours = "12";
 	let dayofmonth = "*";
 	let month = "*";
@@ -229,7 +229,7 @@ function schedule_Request_PIPELINE_GLOBAL(){
 	//test data
 	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
 		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
-		let bant_list = ["AS" , "CM" , "ID" , "IT" , "Solution"];
+		let bant_list = ["AS" , "ID" , "IT" , "Solution"];
 		bant_list.forEach( async BusinessName =>{
 			await b2bgerp_global_data_contacts.pipe_global_bant_send(BusinessName);
 		})

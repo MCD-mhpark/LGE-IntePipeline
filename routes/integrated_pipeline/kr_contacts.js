@@ -16,6 +16,11 @@ router.post('/namefieldtest', async function (req, res, next) {
 	res.json(result_list);
 })
 
+
+//=====================================================================================================================
+// SFDC 전송 
+//=====================================================================================================================
+
 pipe_kr_bant_send = async function (req, res){
 	console.log("Pipeline pipe_kr_bant_send");
 	var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
@@ -328,7 +333,7 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 
 			//result_item.platformActivity = GetCustomObjectValue(1385, cod_elements[i], "N"); //Platform & Activity // SFDC만 리드원천으로 변경
 			result_item.leadName = GetCustomObjectValue(1384, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(1351, cod_elements[i], "N") ; 
-			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명
+			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명w
 
 		
 
@@ -417,7 +422,7 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 			// result_item.ATTRIBUTE_12 = "";
 
 			//result_item.platformActivity = GetCustomObjectValue(318, cod_elements[i], "N"); //Platform & Activity
-			result_item.leadName = GetCustomObjectValue(317, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N") ; 
+			result_item.leadName = "민수SYS_[B2B사이트]" + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N") ; 
 			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명
 
 			result_data.push(result_item);

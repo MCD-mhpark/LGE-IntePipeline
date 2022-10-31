@@ -321,12 +321,10 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 			console.log(result_item.corporation);
 
-			let notBant_email_list = [];
-			// Pipe Line 테스트를 위해 임시 주석
-			// notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
-			// let notBant_email_list = notBant_emailType_List.filter(function (sentence) {
-			// 	return result_item.ATTRIBUTE_4.indexOf(sentence) > -1 ? result_item.ATTRIBUTE_4 : null;
-			// });
+			let notBant_emailType_List = ["@lg.com", "@lge.com", "@goldenplanet.co.kr", "@test.com", "@cnspartner.com", "@intellicode.co.kr", "@hsad.co.kr", "@test.co.kr", "@test.test", "@testtest.com"];
+			let notBant_email_list = notBant_emailType_List.filter(function (sentence) {
+				return result_item.email.indexOf(sentence) > -1 ? result_item.email : null;
+			});
 
 			let subsidiaryOption = ['LGEAP', 'LGESL', 'LGETH', 'LGECH', 'LGEHK', 'LGEIL', 'LGEIN', 'LGEML', 'LGEPH', 'LGETT', 'LGEVH', 'LGEJP', 'LGEKR', 'LGERA', 'LGEAK', 'LGEUR', 'LGEMK',
     		'LGEAG', 'LGEBN', 'LGEHS', 'LGECZ', 'LGEDG', 'LGEPL', 'LGEFS', 'LGEUK', 'LGEIS', 'LGEPT', 'LGERO', 'LGEES', 'LGEPS', 'LGEAR', 'LGECL', 'LGESP', 'LGECB', 'LGEMS', 'LGEPR', 'LGEGF',
