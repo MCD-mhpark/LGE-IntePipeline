@@ -1526,10 +1526,10 @@ pipe_global_bant_send = async function (business_name, state_date, end_date , re
 					// MQL Data 전송 전 MQL Data List 를 CustomObject 에 적재 update_mql_data은 customobject 적재값임
 					await mqldata_to_eloqua_send( 105 ,temp_nosub_customobject);
 
-					// Pipe Test 를 위해 주석처리
-					// var bant_result_list = await setBant_Update(business_name, bant_update_list);
-					// req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
-					// req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
+					// 전송후 bant 업데이트
+					var bant_result_list = await setBant_Update(business_name, bant_update_list);
+					req_res_logs("bantUpdateData", business_name, "PIPELINE_GLOBAL",  bant_result_list);
+					req_res_logs("NOT_bantUpdateData", business_name, "PIPELINE_GLOBAL" , not_bant_data);
 				}
 
 				// res.json(body);
