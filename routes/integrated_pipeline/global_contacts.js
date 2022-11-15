@@ -2248,15 +2248,15 @@ function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival
 				,'Sports Entertainment'
 				,'Real-Estate Agency'
 				,'Luxury(Watch/Jewelry Shop)'
-				,'Car dealership'
+				,'Car Dealership'
 				,'Electronics & Telco'
 				,'Cosmetics'
 				,'Gas Station'
 				,'Travel Agency'
-				,'CVS (Convenience store)'
+				,'CVS (Convenience Store)'
 				,'Duty Free Shop'
-				,'Hyper market & grocery'
-				,'Shopping mall'
+				,'Hyper Market & Grocery'
+				,'Shopping Mall'
 				,'Other Stores'
 			]			
 			result = Retail_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
@@ -2369,7 +2369,7 @@ function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival
 				'General Government Office'
 				,'Military'
 				,'Police / Fire station'
-				,'Welfare facilities'
+				,'Welfare Facilities'
 				,'Others'
 			]			
 			result = Government_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
@@ -2378,8 +2378,8 @@ function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival
 		case "Factory":
 			let Factory_Vertival2 = [
 				'Manufacturing Factory / Plant'
-				,'Chemical factory / Plant'
-				,'Pharmaceutical factory'
+				,'Chemical Factory / Plant'
+				,'Pharmaceutical Factory'
 				,'Others'
 			]			
 			result = Factory_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
@@ -2398,7 +2398,7 @@ function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival
 			let Special_Vertival2 = [
 				'Mixed-use (Multi Complex)'
 				,'Botanical Garden / Green House'
-				,'Telecom base station / Data, Call'
+				,'Telecom Base Station / Data, Call'
 				,'Others'
 			]			
 			result = Special_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
