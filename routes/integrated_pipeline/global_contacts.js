@@ -2227,7 +2227,7 @@ function GetDataValue(contacts_fieldvalue) {
 function checkVerticalType1Code(_Business_Sector_Name) {
 	let result = "";
 	let value = ['Retail','Hotel & Accomodation', 'Hospital & Health Care', 'Residential (Home)', 'Corporate / Office', 'Transportation', 'Education', 'Public Facility'
-,'Government Department', 'Factory', 'Power plant / Renewable energy', 'Special Purpose']
+,'Government Department', 'Factory', 'Power Plant / Renewable Energy', 'Special Purpose']
 
 	result = value.includes(_Business_Sector_Name) ? _Business_Sector_Name : ""
 	return result;
@@ -2377,17 +2377,17 @@ function checkVerticalType2Code(_Business_Sector_Name, _Business_Sector_Vertival
 
 		case "Factory":
 			let Factory_Vertival2 = [
-				'Manufacturing factory / Plant'
+				'Manufacturing Factory / Plant'
 				,'Chemical factory / Plant'
 				,'Pharmaceutical factory'
 				,'Others'
 			]			
 			result = Factory_Vertival2.includes(_Business_Sector_Vertival2_Name) ? _Business_Sector_Vertival2_Name : ""
 			break;
-		case "Power plant / Renewable energy":
+		case "Power Plant / Renewable Energy":
 			let Powerplant_Vertival2 = [
-				'Power plant'
-				,'Renewable energy'
+				'Power Plant'
+				,'Renewable Energy'
 				,'Energy Storage & Saving'
 				,'Others'
 			]			
