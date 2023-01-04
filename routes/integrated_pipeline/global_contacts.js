@@ -178,6 +178,7 @@ function B2B_GERP_GLOBAL_ENTITY() {
 	this.marketingAgreementYn	= "";     // MarketingAgreementYn
 	this.marketingAgreementDate	= ""; 	  // MarketingAgreementDate
 	this.customerType = ""; //CustomerType
+	this.customerSubType = ""; //customer Sub Type
 	this.eloquaProduct1	= "";     //ELOQUA 내 Product 1
 	this.eloquaProduct2	= "";     //ELOQUA 내 Product 2 없을경우 NULL
 	this.eloquaProduct3	= "";     //ELOQUA 내 Product 3 없을경우 NULL
@@ -302,6 +303,7 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 			result_item.marketingAgreementDate = Marketing_Agreement_Date == null ? "" : Marketing_Agreement_Date; //Direct Marketing_EM Date
 
 			result_item.customerType = GetBusiness_Department_data(FieldValues_data, business_department, "Customer Type");    //Customer Type
+			result_item.customerSubType = GetBusiness_Department_data(FieldValues_data, business_department, "Customer Sub Type");    //Customer Sub Type
 
 			result_item.eloquaProduct1 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
 			result_item.eloquaProduct2 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
@@ -763,6 +765,11 @@ function TEST_CONVERT_B2BGERP_GLOBAL_CUSTOMOBJECT(request_data) {
 		})
 
 		mql_data.fieldValues.push({
+			"id": "1979",
+			"value": item.customerSubType
+		})
+
+		mql_data.fieldValues.push({
 			"id": "1977",
 			"value": item.marketingAgreementYn
 		})
@@ -971,6 +978,7 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 			result_item.marketingAgreementDate = Marketing_Agreement_Date == null ? "" : Marketing_Agreement_Date; //Direct Marketing_EM Date
 
 			result_item.customerType = GetBusiness_Department_data(FieldValues_data, business_department, "Customer Type");    //Customer Type
+			result_item.customerSubType = GetBusiness_Department_data(FieldValues_data, business_department, "Customer Sub Type");    //Customer Sub Type
 
 			result_item.eloquaProduct1 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_Category");     //ELOQUA 내 Product 1 //(사업부별 컬럼 확인 필요)
 			result_item.eloquaProduct2 = GetBusiness_Department_data(FieldValues_data, business_department, "Product_SubCategory");  //ELOQUA 내 Product 2 없을경우 NULL // (사업부별 컬럼 확인 필요)
@@ -1191,6 +1199,11 @@ function CONVERT_B2BGERP_GLOBAL_SUBSIDIARY_MISSING(request_data) {
 		mql_data.fieldValues.push({
 			"id": "1671",
 			"value": item.customerType
+		})
+
+		mql_data.fieldValues.push({
+			"id": "1987",
+			"value": item.customerSubType
 		})
 
 		mql_data.fieldValues.push({
@@ -1597,6 +1610,10 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100216	AS_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100216);
 					break;
+				case "Customer Sub Type":
+					//100388	AS_Customer Sub Type
+					result_data = GetCustomFiledValue(fieldValues, 100388);
+					break;
 			}
 			break;
 		case "CLS":
@@ -1652,6 +1669,10 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100280	CLS_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100280);
 					break;
+				case "Customer Sub Type":
+					//100393	CLS_Customer Sub Type
+					result_data = GetCustomFiledValue(fieldValues, 100393);
+					break;
 			}
 			break;
 		case "CM":
@@ -1705,9 +1726,9 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100350	CM_Business Sector(Lv2) // Vertical_Level_2
 					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100287), GetCustomFiledValue(fieldValues, 100350));
 					break;
-				case "Customer Type":
-					//100286	CM_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100286);
+				case "Customer Sub Type":
+					//100392	CM_Customer Sub Type
+					result_data = GetCustomFiledValue(fieldValues, 100392);
 					break;
 			}
 			break;
@@ -1761,6 +1782,10 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100260	ID_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100260);
 					break;
+				case "Customer Sub Type":
+					//100389	ID_Customer Sub Type
+					result_data = GetCustomFiledValue(fieldValues, 100389);
+					break;
 			}
 			break;
 		case "IT":
@@ -1812,6 +1837,10 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 				case "Customer Type":
 					//100267	IT_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100267);
+					break;
+				case "Customer Sub Type":
+				//100390	IT_Customer Sub Type
+					result_data = GetCustomFiledValue(fieldValues, 100390);
 					break;
 			}
 			break;
@@ -1866,6 +1895,7 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100274	Solar_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100274);
 					break;
+				//Solar 부서 사용안함
 			}
 			break;
 		case "Solution":
@@ -1918,6 +1948,12 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100226	Solution_Customer Type
 					result_data = GetCustomFiledValue(fieldValues, 100226);
 					break;
+				case "Customer Sub Type":
+					//100391	Solution_Customer Sub Type
+						result_data = GetCustomFiledValue(fieldValues, 100391);
+						break;
+
+				
 			}
 			break;
 	}
