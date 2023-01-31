@@ -330,7 +330,7 @@ async function Convert_B2BGERP_GLOBAL_DATA(contacts_data, business_department) {
 
 			let subsidiaryOption = ['LGEAP', 'LGESL', 'LGETH', 'LGECH', 'LGEHK', 'LGEIL', 'LGEIN', 'LGEML', 'LGEPH', 'LGETT', 'LGEVH', 'LGEJP', 'LGEKR', 'LGERA', 'LGEAK', 'LGEUR', 'LGEMK',
     		'LGEAG', 'LGEBN', 'LGEHS', 'LGECZ', 'LGEDG', 'LGEPL', 'LGEFS', 'LGEUK', 'LGEIS', 'LGEPT', 'LGERO', 'LGEES', 'LGEPS', 'LGEAR', 'LGECL', 'LGESP', 'LGECB', 'LGEMS', 'LGEPR', 'LGEGF',
-    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESB', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
+    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESJ', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
 			let subsidiaryCheck;
 			if(subsidiaryOption.includes(result_item.corporation)){
 				subsidiaryCheck = true;
@@ -1010,7 +1010,7 @@ async function Convert_B2BGERP_GLOBAL_NOSUBSIDIARY_DATA(contacts_data, business_
 
 			let subsidiaryOption = ['LGEAP', 'LGESL', 'LGETH', 'LGECH', 'LGEHK', 'LGEIL', 'LGEIN', 'LGEML', 'LGEPH', 'LGETT', 'LGEVH', 'LGEJP', 'LGEKR', 'LGERA', 'LGEAK', 'LGEUR', 'LGEMK',
     		'LGEAG', 'LGEBN', 'LGEHS', 'LGECZ', 'LGEDG', 'LGEPL', 'LGEFS', 'LGEUK', 'LGEIS', 'LGEPT', 'LGERO', 'LGEES', 'LGEPS', 'LGEAR', 'LGECL', 'LGESP', 'LGECB', 'LGEMS', 'LGEPR', 'LGEGF',
-    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESB', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
+    		'LGEAS', 'LGEAF', 'LGESA', 'LGEEF', 'LGEEG', 'LGEIR', 'LGELF', 'LGEYK', 'LGEMC', 'LGESJ', 'LGETU', 'LGETK', 'LGECI', 'LGEUS', 'LGEHQ', 'LGESW', 'LGELA', 'LGELV'];
 			let subsidiaryCheck;
 			if(subsidiaryOption.includes(result_item.corporation)){
 				subsidiaryCheck = true;
