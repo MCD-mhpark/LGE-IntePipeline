@@ -131,9 +131,9 @@ pipe_kr_bant_send = async function (req, res){
 	                
 				// 	console.log("첫번쨰 로그로그 >>", B2B_GERP_KR_DATA);
 	            //     //Pipe Line 테스트를 위해 주석 처리
-				// 	let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
 				// 	console.log("두번째로그로그 >>" ,trans_up_list[0].fieldValues);
-				// 	await sendTransfer_Update(parentId , trans_up_list);
+					await sendTransfer_Update(parentId , trans_up_list);
 					
 	            // }   
 	        }
@@ -449,8 +449,9 @@ async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 
 		for(let i = 0 ; i <  kr_data.fieldValues.length ; i++){
 
-			if(kr_data.fieldValues[i].id == "2011") { kr_data.fieldValues[i].value = trans_check }
+			if(kr_data.fieldValues[i].id == "483") { kr_data.fieldValues[i].value = trans_check }
 			
+			// 테스트시에 개인정보 활용 관련된 컬럼 4개 (ex 개인정보 국외이전 동의) 가 온라인 견적문의 데이터가 들어왔을 때 자동으로 마킹 되는지 체크 한번 부탁 드립니다.
 			// if(kr_data.fieldValues[i].id == "301" || kr_data.fieldValues[i].id == "300" || kr_data.fieldValues[i].id == "299" || kr_data.fieldValues[i].id == "298"){ 
 			//  	kr_data.fieldValues[i].value = utils.timeConverter("GET_UNIX" , kr_data.fieldValues[i].value ) 
 			// }
