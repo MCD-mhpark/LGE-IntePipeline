@@ -236,6 +236,8 @@ function B2B_GERP_KR_ENTITY() {
 	this.unifyId = ""; //통합회원 유니크 아이디
 	this.sector = ""; //업종
 	this.dtlSector = ""; //상세업종
+
+	this.LGE_MarketingEvent__c  = ""//마케팅 이벤트
 	
 	this.privacyPolicyYn = "";
 	this.privacyPolicyDate = "";
@@ -398,6 +400,8 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.unifyId = GetCustomObjectValue(293, cod_elements[i], "N"); //통합회원 유니크 아이디
 			result_item.sector = GetCustomObjectValue(294, cod_elements[i], "N"); //업종
 			result_item.dtlSector = GetCustomObjectValue(295, cod_elements[i], "N"); //상세업종
+
+			result_item.LGE_MarketingEvent__c = GetCustomObjectValue(317, cod_elements[i], "N"); //마케팅 이벤트
 
 			result_item.privacyPolicyYn = GetCustomObjectValue(289, cod_elements[i], "N") == "Yes" ? "Y" : "N"; //개인정보 수집 및 이용동의 여부
 			let Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomObjectValue(298, cod_elements[i], "N"));
