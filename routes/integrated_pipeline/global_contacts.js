@@ -1608,7 +1608,7 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100216	AS_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100216);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100216));
 					break;
 				case "Customer Sub Type":
 					//100388	AS_Customer Sub Type
@@ -1667,11 +1667,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100280	CLS_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100280);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100280));
 					break;
 				case "Customer Sub Type":
 					//100393	CLS_Customer Sub Type
-					result_data = GetCustomFiledValue(fieldValues, 100393);
+					result_data = checkCustomerSubType(GetCustomFiledValue(fieldValues, 100280), GetCustomFiledValue(fieldValues, 100393));
 					break;
 			}
 			break;
@@ -1726,9 +1726,12 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					//100350	CM_Business Sector(Lv2) // Vertical_Level_2
 					result_data = checkVerticalType2Code(GetCustomFiledValue(fieldValues, 100287), GetCustomFiledValue(fieldValues, 100350));
 					break;
+				case "Customer Type":
+					//100260	CM_Customer Type
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100286));
 				case "Customer Sub Type":
 					//100392	CM_Customer Sub Type
-					result_data = GetCustomFiledValue(fieldValues, 100392);
+					result_data = checkCustomerSubType(GetCustomFiledValue(fieldValues, 100286), GetCustomFiledValue(fieldValues, 100392));
 					break;
 			}
 			break;
@@ -1780,11 +1783,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100260	ID_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100260);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100260));
 					break;
 				case "Customer Sub Type":
 					//100389	ID_Customer Sub Type
-					result_data = GetCustomFiledValue(fieldValues, 100389);
+					result_data = checkCustomerSubType(GetCustomFiledValue(fieldValues, 100260), GetCustomFiledValue(fieldValues, 100389));
 					break;
 			}
 			break;
@@ -1836,11 +1839,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100267	IT_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100267);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100267));
 					break;
 				case "Customer Sub Type":
 				//100390	IT_Customer Sub Type
-					result_data = GetCustomFiledValue(fieldValues, 100390);
+					result_data = checkCustomerSubType(GetCustomFiledValue(fieldValues, 100267), GetCustomFiledValue(fieldValues, 100390));
 					break;
 			}
 			break;
@@ -1893,7 +1896,7 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100274	Solar_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100274);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100274));
 					break;
 				//Solar 부서 사용안함
 			}
@@ -1946,11 +1949,11 @@ function GetBusiness_Department_data(fieldValues, business_department, key) {
 					break;
 				case "Customer Type":
 					//100226	Solution_Customer Type
-					result_data = GetCustomFiledValue(fieldValues, 100226);
+					result_data = checkCustomerType(GetCustomFiledValue(fieldValues, 100226));
 					break;
 				case "Customer Sub Type":
 					//100391	Solution_Customer Sub Type
-						result_data = GetCustomFiledValue(fieldValues, 100391);
+						result_data = checkCustomerSubType(GetCustomFiledValue(fieldValues, 100226), GetCustomFiledValue(fieldValues, 100391));
 						break;
 
 				
@@ -2259,6 +2262,90 @@ function GetDataValue(contacts_fieldvalue) {
 	}
 }
 
+function checkCustomerType(customerType) {
+	let result = "";
+	let value = ['End Customer','Channel Partner', 'Specifier/ Influencer', 'Solution Eco-Partner', 'Service Partner']
+
+	result = value.includes(customerType) ? customerType : ""
+	return result;
+}
+
+function checkCustomerSubType(customerType, customerSubType) {
+
+	let result = "";
+	switch (checkCustomerType(customerType)) {
+
+		case "End Customer":
+			let End_Customer = [
+				'Construction Company'
+				,'Owner/ Developer'
+				,'Medical/ Healthcare facility'
+				,'Government/ Public sector'
+				,'Corporate'
+				,'Education'
+				,'Retail'
+				,'Cruise'
+				,'Fitness'
+				,'Others'
+			]			
+			result = End_Customer.includes(customerSubType) ? customerSubType : ""
+			break;
+
+		case "Channel Partner":
+			let Channel_Partner = [
+				'Agent'
+				,'Buying Group'
+				,'Distributor'
+				,'Reseller'
+				,'NSP(US Only)'
+				,'National Reseller'
+				,'Regional Reseller'
+				,'SI (System Integrator)'
+				,'Pro AV/ AV Consultant'
+				,'VAR (3PO)'
+				,'Others'
+			]			
+			result = Channel_Partner.includes(customerSubType) ? customerSubType : ""
+			break;
+			
+		case "Specifier/ Influencer":
+			let Specifier_Influencer = [
+				'Architect'
+				,'Consultant'
+				,'Technical Firm'
+				,'Installer'
+				,'Design Firm'
+				,'Ad&Contents Provider'
+				,'Applied Rep'
+				,'Others'
+			]			
+			result = Specifier_Influencer.includes(customerSubType) ? customerSubType : ""
+			break;
+
+		case "Solution Eco-Partner":
+			let Solution_EcoPartner = [
+				'CMS/ WebOS/ ISV'
+				,'Mount/ Metal Fabrication'
+				,'Meeting Solution'
+				,'Control/ Processor'
+				,'External Compute'
+				,'Others'
+			]			
+			result = Solution_EcoPartner.includes(customerSubType) ? customerSubType : ""
+			break;
+
+		case "Service Partner":
+			let Service_Partner = [
+				'SVC (ASC)'
+				,'SVC (ASD)'
+				,'Others'
+			]			
+			result = Service_Partner.includes(customerSubType) ? customerSubType : ""
+			break;
+			
+	}
+	return result;
+}
 
 function checkVerticalType1Code(_Business_Sector_Name) {
 	let result = "";
