@@ -216,26 +216,26 @@ app.use(function(err, req, res, next) {
 
 
 
-function schedule_Request_PIPELINE_GLOBAL(){
-	let uniqe_jobs_name = "PIPELINE_GLOBAL" +  moment().format('YYYYMMDD');
-	let second = "0";
-	let minutes = "1";
-	let hours = "12";
-	let dayofmonth = "*";
-	let month = "*";
-	let weekindex = "*";
-	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+// function schedule_Request_PIPELINE_GLOBAL(){
+// 	let uniqe_jobs_name = "PIPELINE_GLOBAL" +  moment().format('YYYYMMDD');
+// 	let second = "0";
+// 	let minutes = "1";
+// 	let hours = "12";
+// 	let dayofmonth = "*";
+// 	let month = "*";
+// 	let weekindex = "*";
+// 	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
 
-	//test data
-	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
-		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
-		let bant_list = ["AS" , "ID" , "IT" , "Solution"];
-		bant_list.forEach( async BusinessName =>{
-			await b2bgerp_global_data_contacts.pipe_global_bant_send(BusinessName);
-		})
+// 	//test data
+// 	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
+// 		// let bant_list = ["AS" , "CLS" , "CM" , "ID" , "IT" , "Solution"];
+// 		let bant_list = ["AS" , "ID" , "IT" , "Solution"];
+// 		bant_list.forEach( async BusinessName =>{
+// 			await b2bgerp_global_data_contacts.pipe_global_bant_send(BusinessName);
+// 		})
 			
-	});
-}
+// 	});
+// }
 
 function schedule_Request_PIPELINE_KR(){
 	let uniqe_jobs_name = "PIPELINE_KR" +  moment().format('YYYYMMDD');
@@ -254,30 +254,30 @@ function schedule_Request_PIPELINE_KR(){
 }
 
 // Leadnumber update 테스트용 스케쥴러
-function schedule_Request_PIPELINE_LEADUPDATE(){
-	let uniqe_jobs_name = "PIPELINE_LEADUPDATE" +  moment().format('YYYYMMDD');
-	let second = "0";
-	let minutes = "10";
-	let hours = "12";
-	let dayofmonth = "*";
-	let month = "*";
-	let weekindex = "*";
-	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+// function schedule_Request_PIPELINE_LEADUPDATE(){
+// 	let uniqe_jobs_name = "PIPELINE_LEADUPDATE" +  moment().format('YYYYMMDD');
+// 	let second = "0";
+// 	let minutes = "10";
+// 	let hours = "12";
+// 	let dayofmonth = "*";
+// 	let month = "*";
+// 	let weekindex = "*";
+// 	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
 
-	//test data
-	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
-		await b2bgerp_global_data_contacts.pipe_global_lead_update();
-	});
-}
+// 	//test data
+// 	integrated_Pipeline_Jobs = schedule.scheduleJob(uniqe_jobs_name,schedate,"Asia/Seoul" ,async function(){
+// 		await b2bgerp_global_data_contacts.pipe_global_lead_update();
+// 	});
+// }
 
 // Pipe Test를 위하여 임시 주석처리 추후 스케줄러를 위해 등록 필요
 if(__dirname == "/home/opc/LGE/integrated_pipeline"){
-	console.log("INTEGRATED PIPELINE_GLOBAL SCHEDULER REG");
-	schedule_Request_PIPELINE_GLOBAL();
+	// console.log("INTEGRATED PIPELINE_GLOBAL SCHEDULER REG");
+	// schedule_Request_PIPELINE_GLOBAL();
 	console.log("INTEGRATED PIPELINE_KR SCHEDULER REG");
 	schedule_Request_PIPELINE_KR();
-	console.log("INTEGRATED PIPELINE_LEADUPDATE SCHEDULER REG");
-	schedule_Request_PIPELINE_LEADUPDATE();
+	// console.log("INTEGRATED PIPELINE_LEADUPDATE SCHEDULER REG");
+	// schedule_Request_PIPELINE_LEADUPDATE();
 } 
 
 // console.log(b2bgerp_global_data_contacts);
