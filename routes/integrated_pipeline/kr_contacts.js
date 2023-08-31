@@ -7,13 +7,13 @@ var kr_seq_cnt = 0;
 var fs = require("mz/fs");
 
 router.get('/inte_pipeline_kr', async function (req, res, next) {
-	await pipe_kr_bant_send(req , res);
+	await pipe_kr_bant_send(req, res);
 });
 
 router.post('/namefieldtest', async function (req, res, next) {
-	var COD_list = await GetKR_CustomDataSearch(149 ,"get");
+	var COD_list = await GetKR_CustomDataSearch(39, "init");
 	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
-	res.json(result_list);
+	res.json(B2B_GERP_KR_DATA);
 })
 
 
@@ -21,14 +21,14 @@ router.post('/namefieldtest', async function (req, res, next) {
 // SFDC 전송 
 //=====================================================================================================================
 
-pipe_kr_bant_send = async function (req, res){
+pipe_kr_bant_send = async function (req, res) {
 	console.log("Pipeline pipe_kr_bant_send");
 	var parentId = 39;  // 한국영업본부 온라인 견적문의 커스텀 오브젝트 ID
 
 	//var parentId = 149;  // 한국영업본부 온라인 견적문의 테스트 커스텀 오브젝트 ID
 
-	var COD_list = await GetKR_CustomDataSearch(parentId ,"get");
-	
+	var COD_list = await GetKR_CustomDataSearch(parentId, "get");
+
 	// console.log(COD_list);
 	//Pipe Line 테스트를 위해 주석 처리
 	var B2B_GERP_KR_DATA = await Convert_B2BGERP_KR_DATA(COD_list);
@@ -36,47 +36,47 @@ pipe_kr_bant_send = async function (req, res){
 	let status = "prd"
 	let access_token_data = await utils.getPipe_AccessToken(status);
 
-	let send_url ; 
-	
-	switch(status){
+	let send_url;
+
+	switch (status) {
 		//LG전자 파이프라인 개발 URL
-		case "dev" : send_url = "https://lge--dev.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
-		break;
+		case "dev": send_url = "https://lge--dev.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
+			break;
 
 		//LG전자 파이프라인 스테이징 URL
-		case "stg" : send_url  = "https://lge--sb.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
-		break;
+		case "stg": send_url = "https://lge--sb.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
+			break;
 
 		//LG전자 파이프라인 실전검증 URL 
-		case "fullstg" : send_url  = "https://lge--fs.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
-		break;
+		case "fullstg": send_url = "https://lge--fs.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
+			break;
 
 		//LG전자 파이프라인 운영 URL
-		case "prd" : send_url = "https://lge.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
-		break;
+		case "prd": send_url = "https://lge.my.salesforce.com/services/apexrest/mat/eloqua/lead/kr";
+			break;
 	}
-	
+
 	// console.log(access_token_data)
-	
+
 	if (B2B_GERP_KR_DATA != null && B2B_GERP_KR_DATA.length > 0) {
 
 		let token_data = {};
 
-		try{
+		try {
 			token_data = JSON.parse(access_token_data);
-		}catch (error){
-			if(error) error.stack();
+		} catch (error) {
+			if (error) error.stack();
 		}
 		let token_type = token_data.token_type ? token_data.token_type : undefined;
 		let token = token_data.access_token ? token_data.access_token : undefined;
-		
+
 		// console.log("send_url : " + send_url);
 		// console.log("token_type : " + token_type)
 		// console.log("token : " + token)
-		if(!token_type || !token) return;
+		if (!token_type || !token) return;
 		var headers = {
 			'Content-Type': "application/json",
-			'Authorization' : token_type + " " + token
+			'Authorization': token_type + " " + token
 		}
 
 
@@ -93,72 +93,72 @@ pipe_kr_bant_send = async function (req, res){
 
 		console.log(B2B_GERP_KR_DATA);
 
-		req_res_logs("reqRequest_" + moment().tz('Asia/Seoul').format("HH시mm분") , "KR" , "PIPELINE_KR" , options );
-        req_res_logs("reqEloqua_" + moment().tz('Asia/Seoul').format("HH시mm분") , "KR" , "PIPELINE_KR" , COD_list );
-        req_res_logs("reqConvert_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR", B2B_GERP_KR_DATA );
-        // req_res_logs("reqTotal" , business_name , total_logs );
-	
-
-        //   var bant_result_list = await setBant_Update( business_name , bant_update_list );
-        //   req_res_logs("bantResult" , business_name , bant_result_list );
-        //   res.json(bant_result_list);
+		req_res_logs("reqRequest_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", options);
+		req_res_logs("reqEloqua_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", COD_list);
+		req_res_logs("reqConvert_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", B2B_GERP_KR_DATA);
+		// req_res_logs("reqTotal" , business_name , total_logs );
 
 
-        await request_promise.post(options, async function (error, response, body) {
-			
-	        if(error){
-	            console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
-	            // console.log(error);
+		//   var bant_result_list = await setBant_Update( business_name , bant_update_list );
+		//   req_res_logs("bantResult" , business_name , bant_result_list );
+		//   res.json(bant_result_list);
+
+
+		await request_promise.post(options, async function (error, response, body) {
+
+			if (error) {
+				console.log("에러에러(wise 점검 및 인터넷 연결 안됨)");
+				// console.log(error);
 				let errorData = {
-					errorCode : response.statusCode,
-					errorMsg : error.message 
+					errorCode: response.statusCode,
+					errorMsg: error.message
 				}
-				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , errorData );	
-	        }else if(!error && response.statusCode != 200 ){
-			
-				let errorData = {
-					errorCode : response.statusCode,
-					errorMsg : "Error Object Not Found & Response Code Not 200" ,
-					errorDetailMsg : response.body
-				}
-				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , errorData );
-				req_res_logs("requestObject_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" , "PIPELINE_KR" , response );
+				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", errorData);
+			} else if (!error && response.statusCode != 200) {
 
-			}else if (!error && response.statusCode == 200) {
-	    		req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분")  , "KR" ,  "PIPELINE_KR" , body );
-	            
+				let errorData = {
+					errorCode: response.statusCode,
+					errorMsg: "Error Object Not Found & Response Code Not 200",
+					errorDetailMsg: response.body
+				}
+				req_res_logs("responseError_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", errorData);
+				req_res_logs("requestObject_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", response);
+
+			} else if (!error && response.statusCode == 200) {
+				req_res_logs("response_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", body);
+
 				// if(B2B_GERP_KR_DATA.length > 0 ) {
-	                
+
 				// 	console.log("첫번쨰 로그로그 >>", B2B_GERP_KR_DATA);
-	            //     //Pipe Line 테스트를 위해 주석 처리
-					let trans_up_list = await getTransfer_UpdateData( COD_list.elements , "get");
+				//     //Pipe Line 테스트를 위해 주석 처리
+				let trans_up_list = await getTransfer_UpdateData(COD_list.elements, "get");
 				// 	console.log("두번째로그로그 >>" ,trans_up_list[0].fieldValues);
-					await sendTransfer_Update(parentId , trans_up_list);
-					
-	            // }   
-	        }
-	    });
+				await sendTransfer_Update(parentId, trans_up_list);
+
+				// }   
+			}
+		});
 	}
 	else {
 		let noneData = {
-			errorInfo : null ,
-			errorMessage : "보낼 데이터가 없습니다."
+			errorInfo: null,
+			errorMessage: "보낼 데이터가 없습니다."
 		}
-		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분")  ,"KR" ,  "PIPELINE_KR" , noneData );
-		
+		req_res_logs("noneData_" + moment().tz('Asia/Seoul').format("HH시mm분"), "KR", "PIPELINE_KR", noneData);
+
 	}
 
-	
+
 }
 
 
 //CustomObject 기간 조회 Eloqua API Version 1.0
-async function GetKR_CustomDataSearch(_parentId , type) {
+async function GetKR_CustomDataSearch(_parentId, type) {
 	var return_data = {};
 	var parentId = _parentId;
 
 	var queryString = {};
-	
+
 	// if(type == 'get') queryString += "?search=B2B_GERP_KR_____1=''"
 	// if(type == 'init')  queryString += "?search=B2B_GERP_KR_____1='Y'"
 
@@ -179,8 +179,8 @@ async function GetKR_CustomDataSearch(_parentId , type) {
 
 
 
-	if(type == 'get') queryString['search'] =  "?B2B_GERP_KR_____1=''"
-	if(type == 'init')  queryString['search'] =  "?B2B_GERP_KR_____1='Y'"
+	if (type == 'get') queryString['search'] = "?B2B_GERP_KR_____1=''"
+	if (type == 'init') queryString['search'] = "?B2B_GERP_KR_____1='Y'"
 
 	console.log(_parentId);
 	console.log(queryString);
@@ -201,8 +201,8 @@ async function GetKR_CustomDataSearch(_parentId , type) {
 //=====================================================================================================================
 
 function B2B_GERP_KR_ENTITY() {
-	this.customObjectId = ""; 
-	this.contactId = "" ;
+	this.customObjectId = "";
+	this.contactId = "";
 	this.interfaceId = "";
 	this.estimationId = ""; //견적번호 X
 	this.estimationSeqNo = ""; //견적상세번호 X
@@ -237,8 +237,8 @@ function B2B_GERP_KR_ENTITY() {
 	this.sector = ""; //업종
 	this.dtlSector = ""; //상세업종
 
-	this.LGE_MarketingEvent__c  = ""//마케팅 이벤트
-	
+	this.LGE_MarketingEvent__c = ""//마케팅 이벤트
+
 	this.privacyPolicyYn = "";
 	this.privacyPolicyDate = "";
 	this.thirdPartyAgreementYn = "";
@@ -249,12 +249,20 @@ function B2B_GERP_KR_ENTITY() {
 	this.marketingAgreementDate = "";
 	this.leadSource = "";
 
+	/*{2023-08-22} 신규 파라미터 생성*/
+	this.budget				//예산
+	this.jobFunction		//주요업무
+	this.marketingEvent 	//마케팅이벤트
+	this.seniority 			//직책/직위
+	this.timeline  			//구매시기
+	this.purchaseQuantity	//구매수량
+
 	// this.ATTRIBUTE_10 = "";
 	// this.ATTRIBUTE_11 = "";
 	// this.ATTRIBUTE_12 = "";
 
 	//this.platformActivity = ""; //Platform & Activity
-	this.leadName = "" ; 
+	this.leadName = "";
 
 }
 
@@ -264,18 +272,18 @@ var kr_seq_cnt = 0;
 function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 	var cod_elements = _cod_data.elements;
 	var result_data = [];
-	
-	if(!cod_elements ) return;
+
+	if (!cod_elements) return;
 	for (var i = 0; i < cod_elements.length; i++) {
 		try {
 			var result_item = {};
 
-		
-		
+
+
 			moment.locale('kr');
 
-			result_item.customObjectId = cod_elements[i].id ; 
-			result_item.contactId = cod_elements[i].contactId ;
+			result_item.customObjectId = cod_elements[i].id;
+			result_item.contactId = cod_elements[i].contactId;
 			result_item.interfaceId = moment().format('YYYYMMDD') + "8";
 			result_item.estimationId = GetCustomObjectValue(1349, cod_elements[i], "N"); //견적번호 X
 			result_item.estimationSeqNo = GetCustomObjectValue(1350, cod_elements[i], "N"); //견적상세번호 X
@@ -300,7 +308,7 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.registerDate = moment().format('YYYY-MM-DD hh:mm:ss'); //등록일자
 			result_item.productDesc = GetCustomObjectValue(1365, cod_elements[i], "N"); //제품설명
 
-			
+
 			result_item.addr = GetCustomObjectValue(1378, cod_elements[i], "N"); //제품설치지역 도시 
 			result_item.dtlAddr = GetCustomObjectValue(1379, cod_elements[i], "N"); //제품설치지역 시군구
 			result_item.b2bBillToCode = GetCustomObjectValue(1367, cod_elements[i], "N"); //B2B 전문점 코드
@@ -334,10 +342,10 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 			// result_item.ATTRIBUTE_12 = "";
 
 			//result_item.platformActivity = GetCustomObjectValue(1385, cod_elements[i], "N"); //Platform & Activity // SFDC만 리드원천으로 변경
-			result_item.leadName = GetCustomObjectValue(1384, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(1351, cod_elements[i], "N") ; 
+			result_item.leadName = GetCustomObjectValue(1384, cod_elements[i], "N") + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(1351, cod_elements[i], "N");
 			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명w
 
-		
+
 
 			result_data.push(result_item);
 
@@ -354,18 +362,18 @@ function TEST_Convert_B2BGERP_KR_DATA(_cod_data) {
 async function Convert_B2BGERP_KR_DATA(_cod_data) {
 	var cod_elements = _cod_data.elements;
 	var result_data = [];
-	
-	if(!cod_elements) return;
+
+	if (!cod_elements) return;
 	for (var i = 0; i < cod_elements.length; i++) {
 		try {
 			var result_item = new B2B_GERP_KR_ENTITY();
 
-		
-		
+
+
 			moment.locale('kr');
 
-			result_item.customObjectId = cod_elements[i].id ; 
-			result_item.contactId = cod_elements[i].contactId ;
+			result_item.customObjectId = cod_elements[i].id;
+			result_item.contactId = cod_elements[i].contactId;
 			result_item.interfaceId = moment().format('YYYYMMDD') + "8";
 			result_item.estimationId = GetCustomObjectValue(267, cod_elements[i], "N"); //견적번호 X
 			result_item.estimationSeqNo = GetCustomObjectValue(268, cod_elements[i], "N"); //견적상세번호 X
@@ -390,7 +398,7 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.registerDate = moment().format('YYYY-MM-DD hh:mm:ss'); //등록일자
 			result_item.productDesc = GetCustomObjectValue(283, cod_elements[i], "N"); //제품설명
 
-			
+
 			result_item.addr = GetCustomObjectValue(296, cod_elements[i], "N"); //제품설치지역 도시 
 			result_item.dtlAddr = GetCustomObjectValue(297, cod_elements[i], "N"); //제품설치지역 시군구
 			result_item.b2bBillToCode = GetCustomObjectValue(285, cod_elements[i], "N"); //B2B 전문점 코드
@@ -401,7 +409,9 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 			result_item.sector = GetCustomObjectValue(294, cod_elements[i], "N"); //업종
 			result_item.dtlSector = GetCustomObjectValue(295, cod_elements[i], "N"); //상세업종
 
-			result_item.LGE_MarketingEvent__c = GetCustomObjectValue(317, cod_elements[i], "N"); //마케팅 이벤트
+			/*{2023-08-28} 317번 키값 변경 {'LGE_MarketingEvent__c' => 'marketingEvent'}*/
+			//result_item.LGE_MarketingEvent__c = GetCustomObjectValue(317, cod_elements[i], "N"); //마케팅 이벤트
+			result_item.marketingEvent = GetCustomObjectValue(317, cod_elements[i], "N"); //마케팅 이벤트
 
 			result_item.privacyPolicyYn = GetCustomObjectValue(289, cod_elements[i], "N") == "Yes" ? "Y" : "N"; //개인정보 수집 및 이용동의 여부
 			let Privacy_Policy_Date = utils.timeConverter("GET_DATE", GetCustomObjectValue(298, cod_elements[i], "N"));
@@ -426,8 +436,16 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 			// result_item.ATTRIBUTE_12 = "";
 
 			//result_item.platformActivity = GetCustomObjectValue(318, cod_elements[i], "N"); //Platform & Activity
-			result_item.leadName = "민수SYS_[B2B사이트]" + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N") ; 
+			result_item.leadName = "민수SYS_[B2B사이트]" + "_" + moment().format('YYYYMMDD') + "_" + GetCustomObjectValue(269, cod_elements[i], "N");
 			//Leadname 조합 MarketingEvent_YYYYMMDD_고객명
+
+
+			/*{2023-08-22} 신규 파라미터 생성*/
+			result_item.budget = GetCustomObjectValue(2549, cod_elements[i], "N");				//예산
+			result_item.jobFunction = GetCustomObjectValue(2545, cod_elements[i], "N");			//주요업무
+			result_item.seniority = GetCustomObjectValue(2546, cod_elements[i], "N");			//직책/직위
+			result_item.timeline = GetCustomObjectValue(2547, cod_elements[i], "N");			//구매시기
+			result_item.purchaseQuantity = GetCustomObjectValue(2548, cod_elements[i], "N");	//구매수량
 
 			result_data.push(result_item);
 
@@ -441,20 +459,20 @@ async function Convert_B2BGERP_KR_DATA(_cod_data) {
 }
 
 
-async function getTransfer_UpdateData(TRANS_KR_LIST , type){
+async function getTransfer_UpdateData(TRANS_KR_LIST, type) {
 
 	let return_list = [];
 	let trans_check = "";
-	if(type == 'get' ) trans_check = 'Y'
-	else if(type == 'init' ) trans_check = ''
-	
+	if (type == 'get') trans_check = 'Y'
+	else if (type == 'init') trans_check = ''
 
-	for(const kr_data of TRANS_KR_LIST){
 
-		for(let i = 0 ; i <  kr_data.fieldValues.length ; i++){
+	for (const kr_data of TRANS_KR_LIST) {
 
-			if(kr_data.fieldValues[i].id == "483") { kr_data.fieldValues[i].value = trans_check }
-			
+		for (let i = 0; i < kr_data.fieldValues.length; i++) {
+
+			if (kr_data.fieldValues[i].id == "483") { kr_data.fieldValues[i].value = trans_check }
+
 			// 테스트시에 개인정보 활용 관련된 컬럼 4개 (ex 개인정보 국외이전 동의) 가 온라인 견적문의 데이터가 들어왔을 때 자동으로 마킹 되는지 체크 한번 부탁 드립니다.
 			// if(kr_data.fieldValues[i].id == "301" || kr_data.fieldValues[i].id == "300" || kr_data.fieldValues[i].id == "299" || kr_data.fieldValues[i].id == "298"){ 
 			//  	kr_data.fieldValues[i].value = utils.timeConverter("GET_UNIX" , kr_data.fieldValues[i].value ) 
@@ -469,10 +487,10 @@ async function getTransfer_UpdateData(TRANS_KR_LIST , type){
 }
 
 
-async function sendTransfer_Update( parentId , KR_DATA_LIST){
+async function sendTransfer_Update(parentId, KR_DATA_LIST) {
 
-	for(let item of KR_DATA_LIST){
-		await lge_eloqua.data.customObjects.data.update(parentId , item.id, item).then((result) => {
+	for (let item of KR_DATA_LIST) {
+		await lge_eloqua.data.customObjects.data.update(parentId, item.id, item).then((result) => {
 			console.log("result>>>>", result.data);
 			return_data = result;
 		}).catch((err) => {
@@ -497,7 +515,7 @@ function lpad(str, padLen, padStr) {
 }
 
 
-function req_res_logs(filename, business_name , folderName, data) {
+function req_res_logs(filename, business_name, folderName, data) {
 	// filename : request , response 
 	// business_name : 사업부별 name
 	// data : log 저장할 데이터
